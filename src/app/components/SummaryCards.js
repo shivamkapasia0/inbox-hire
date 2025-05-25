@@ -15,47 +15,47 @@ export default function SummaryCards() {
   const { summaryStats } = data;
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
+    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-3">
       <SummaryCard
-        title="Total Applications"
-        value={summaryStats.totalApplications.toString()}
+        title="Total Jobs Applied"
+        value={summaryStats.totalJobsApplied.toString()}
         trend="25%"
         trendType="up"
-        gradientClasses="bg-gradient-to-r from-yellow-100 to-yellow-300 dark:from-yellow-800 dark:to-yellow-950"
-        icon={UsersIcon}
-        iconColor="text-yellow-600 dark:text-yellow-300"
-      />
-      <SummaryCard
-        title="Qualified Candidates"
-        value={summaryStats.qualifiedCandidates.toString()}
-        trend="10%"
-        trendType="up"
-        gradientClasses="bg-gradient-to-r from-red-100 to-red-300 dark:from-red-800 dark:to-red-950"
-        icon={CalendarIcon}
-        iconColor="text-red-600 dark:text-red-300"
-      />
-      <SummaryCard
-        title="Interviews Scheduled"
-        value={summaryStats.interviewsScheduled.toString()}
-        trend="15%"
-        trendType="up"
         gradientClasses="bg-gradient-to-r from-blue-100 to-blue-300 dark:from-blue-800 dark:to-blue-950"
-        icon={DocumentRemoveIcon}
+        icon={UsersIcon}
         iconColor="text-blue-600 dark:text-blue-300"
       />
       <SummaryCard
-        title="Not Selected"
-        value="0"
-        trend="0%"
+        title="Interview Scheduled"
+        value={summaryStats.interviewsScheduled.toString()}
+        trend="15%"
         trendType="up"
+        gradientClasses="bg-gradient-to-r from-amber-100 to-amber-300 dark:from-amber-800 dark:to-amber-950"
+        icon={CalendarIcon}
+        iconColor="text-amber-600 dark:text-amber-300"
+      />
+      <SummaryCard
+        title="No Response"
+        value={summaryStats.noResponse.toString()}
+        trend="-10%"
+        trendType="down"
         gradientClasses="bg-gradient-to-r from-gray-100 to-gray-300 dark:from-gray-700 dark:to-gray-900"
-        icon={XCircleIcon}
+        icon={DocumentRemoveIcon}
         iconColor="text-gray-600 dark:text-gray-300"
       />
       <SummaryCard
-        title="Hired Candidates"
-        value={summaryStats.hiredCandidates.toString()}
-        trend="5%"
+        title="Not Selected"
+        value={summaryStats.notSelected.toString()}
+        trend="-5%"
+        trendType="down"
+        gradientClasses="bg-gradient-to-r from-red-100 to-red-300 dark:from-red-800 dark:to-red-950"
+        icon={XCircleIcon}
+        iconColor="text-red-600 dark:text-red-300"
+      />
+      <SummaryCard
+        title="In Progress Applications"
+        value={summaryStats.inProgress.toString()}
+        trend="8%"
         trendType="up"
         gradientClasses="bg-gradient-to-r from-green-100 to-green-300 dark:from-green-800 dark:to-green-950"
         icon={DocumentCheckIcon}

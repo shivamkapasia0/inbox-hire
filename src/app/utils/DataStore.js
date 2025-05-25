@@ -6,10 +6,11 @@ import React, { createContext, useContext, useState } from 'react';
 const initialData = {
   // Summary Cards Data
   summaryStats: {
-    totalApplications: 1250,
-    qualifiedCandidates: 850,
+    totalJobsApplied: 1250,
     interviewsScheduled: 45,
-    hiredCandidates: 28,
+    noResponse: 900,
+    notSelected: 300,
+    inProgress: 85,
   },
 
   // Applications Table Data
@@ -30,34 +31,34 @@ const initialData = {
   impressionFunnelData: {
     stages: [
       {
-        label: 'Applications Sent',
+        label: 'Total Jobs Applied',
         value: 100,
         color: 'rgb(59, 130, 246)', // blue-500
-        description: 'Total applications submitted'
+        description: 'Total jobs you have applied to'
       },
       {
-        label: 'Replies Received',
-        value: 60,
-        color: 'rgb(16, 185, 129)', // emerald-500
-        description: 'Employers who responded'
-      },
-      {
-        label: 'Interviews Scheduled',
+        label: 'Interview Scheduled',
         value: 20,
         color: 'rgb(245, 158, 11)', // amber-500
-        description: 'Interviews in pipeline'
+        description: 'Interviews you have scheduled'
       },
       {
-        label: 'Offers Received',
-        value: 4,
-        color: 'rgb(236, 72, 153)', // pink-500
-        description: 'Job offers received'
+        label: 'No Response',
+        value: 60,
+        color: 'rgb(156, 163, 175)', // gray-400
+        description: 'Applications with no response'
+      },
+      {
+        label: 'Not Selected',
+        value: 20,
+        color: 'rgb(239, 68, 68)', // red-500
+        description: 'Applications where you were not selected'
       }
     ],
     conversionRates: {
-      replyRate: 60,
-      interviewRate: 33.3,
-      offerRate: 20
+      interviewRate: 20,
+      noResponseRate: 60,
+      notSelectedRate: 20
     }
   },
 
