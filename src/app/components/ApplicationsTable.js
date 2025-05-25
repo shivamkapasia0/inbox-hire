@@ -1,11 +1,35 @@
 'use client';
 
 import { useState, useMemo } from 'react';
+import { useRouter } from 'next/navigation';
+import ApplicationDetailsModal from './ApplicationDetailsModal';
 
 // Placeholder data - replace with actual data fetching later
 const applications = [
-  { id: 1, jobTitle: 'Software Engineer', company: 'Tech Solutions', status: 'Offer Letters', date: '2024-05-15' },
-  { id: 2, jobTitle: 'Data Analyst', company: 'Data Insights', status: 'Interview Scheduled', date: '2024-05-14' },
+  { 
+    id: 1, 
+    jobTitle: 'Software Engineer', 
+    company: 'Tech Solutions', 
+    status: 'Offer Letters', 
+    date: '2024-05-15',
+    position: 'Software Engineer',
+    statusBadge: 'Approve',
+    lastUpdate: '2024-05-15',
+    source: 'LinkedIn',
+    contactEmail: 'hr@techsolutions.com'
+  },
+  { 
+    id: 2, 
+    jobTitle: 'Data Analyst', 
+    company: 'Data Insights', 
+    status: 'Interview Scheduled', 
+    date: '2024-05-14',
+    position: 'Data Analyst',
+    statusBadge: 'Pending',
+    lastUpdate: '2024-05-14',
+    source: 'Company Website',
+    contactEmail: 'careers@datainsights.com'
+  },
   { id: 3, jobTitle: 'Product Manager', company: 'Innovate Labs', status: 'No Response', date: '2024-05-12' },
   { id: 4, jobTitle: 'UX Researcher', company: 'Creative Minds', status: 'Offer Letters', date: '2024-05-10' },
   { id: 5, jobTitle: 'DevOps Engineer', company: 'Cloud Services', status: 'Rejected', date: '2024-05-08' },
@@ -42,8 +66,10 @@ const statusColors = {
 const ITEMS_PER_PAGE = 5;
 
 export default function ApplicationsTable() {
+  const router = useRouter();
   const [filter, setFilter] = useState('all');
   const [currentPage, setCurrentPage] = useState(1);
+  const [selectedApplication, setSelectedApplication] = useState(null);
 
   const filteredApplications = useMemo(() => {
     const filtered = applications.filter(app => {
@@ -73,6 +99,10 @@ export default function ApplicationsTable() {
     if (page >= 1 && page <= totalPages) {
       setCurrentPage(page);
     }
+  };
+
+  const handleRowClick = (applicationId) => {
+    router.push(`/applications?id=${applicationId}`);
   };
 
   return (
@@ -153,12 +183,16 @@ export default function ApplicationsTable() {
             </thead>
             <tbody className="overflow-y-auto">
               {currentApplications.map((application, index) => (
-                <tr key={application.id} className="bborder-gray-200/50 bg-gray-50/30 hover:bg-gray-50 transition-colors duration-150 h-16">
+                <tr 
+                  key={application.id} 
+                  className="bborder-gray-200/50 bg-gray-50/30 hover:bg-gray-50 transition-colors duration-150 h-16 cursor-pointer"
+                  onClick={() => handleRowClick(application.id)}
+                >
                   <td className="px-5 py-4 text-sm">
                     <p className="text-gray-900 whitespace-no-wrap">{application.id}</p>
                   </td>
                   <td className="px-5 py-4 text-sm">
-                    <a href="#" className="text-blue-700 hover:underline whitespace-no-wrap font-medium">{application.jobTitle}</a>
+                    <p className="text-blue-700 whitespace-no-wrap font-medium">{application.jobTitle}</p>
                   </td>
                   <td className="px-5 py-4 text-sm">
                     <p className="text-gray-800 whitespace-no-wrap">{application.company}</p>
@@ -179,6 +213,14 @@ export default function ApplicationsTable() {
           </table>
         </div>
       </div>
+
+      {/* Application Details Modal */}
+      {selectedApplication && (
+        <ApplicationDetailsModal
+          application={selectedApplication}
+          onClose={() => setSelectedApplication(null)}
+        />
+      )}
     </div>
   );
 } 
