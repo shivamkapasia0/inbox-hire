@@ -1,5 +1,6 @@
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import { DataStoreProvider } from "./utils/DataStore";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -26,7 +27,9 @@ export default function RootLayout({ children }) {
           background: 'linear-gradient(90deg, rgba(251, 243, 225, 1) 0%, rgba(249, 222, 219, 1) 21%, rgba(212, 236, 230, 1) 98%)',
         }}
       >
-        {children}
+        <DataStoreProvider>
+          {children}
+        </DataStoreProvider>
       </body>
     </html>
   );

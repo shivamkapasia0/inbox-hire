@@ -1,3 +1,5 @@
+'use client';
+
 import AnimatedNumber from './AnimatedNumber';
 
 export default function SummaryCard({ title, value, trend, trendType, gradientClasses, icon: Icon, iconColor }) {

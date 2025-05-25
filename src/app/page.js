@@ -45,7 +45,7 @@ export default function Home() {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-4">
-          <DashboardSection title="Not Qualified Overview">
+          <DashboardSection title="Jobs Applied Overview">
             <NotQualifiedOverview />
           </DashboardSection>
           <DashboardSection title="Impressions">

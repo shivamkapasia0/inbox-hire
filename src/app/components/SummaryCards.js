@@ -1,4 +1,7 @@
+'use client';
+
 import SummaryCard from './SummaryCard';
+import { useDataStore } from '../utils/DataStore';
 
 // Placeholder Icons (replace with actual icons later)
 const UsersIcon = (props) => <svg {...props} fill="currentColor" viewBox="0 0 20 20"><path d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"></path></svg>;
@@ -8,11 +11,14 @@ const XCircleIcon = (props) => <svg {...props} fill="currentColor" viewBox="0 0 
 const DocumentCheckIcon = (props) => <svg {...props} fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M6 2a2 2 0 00-2 2v12a2 2 0 002 2h8a2 2 0 002-2V7.414A2 2 0 0015.414 6L12 2.586A2 2 0 0010.586 2H6zm5 10a1 1 0 10-2 0v3a1 1 0 102 0v-3zm2-7a1 1 0 00-2 0v6a1 1 0 102 0V5z" clip-rule="evenodd"></path></svg>;
 
 export default function SummaryCards() {
+  const { data } = useDataStore();
+  const { summaryStats } = data;
+
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
       <SummaryCard
         title="Total Applications"
-        value="592"
+        value={summaryStats.totalApplications.toString()}
         trend="25%"
         trendType="up"
         gradientClasses="bg-gradient-to-r from-yellow-100 to-yellow-300 dark:from-yellow-800 dark:to-yellow-950"
@@ -20,18 +26,18 @@ export default function SummaryCards() {
         iconColor="text-yellow-600 dark:text-yellow-300"
       />
       <SummaryCard
-        title="Interview Schedule"
-        value="142"
+        title="Qualified Candidates"
+        value={summaryStats.qualifiedCandidates.toString()}
         trend="10%"
-        trendType="down"
+        trendType="up"
         gradientClasses="bg-gradient-to-r from-red-100 to-red-300 dark:from-red-800 dark:to-red-950"
         icon={CalendarIcon}
         iconColor="text-red-600 dark:text-red-300"
       />
       <SummaryCard
-        title="No Response"
-        value="0"
-        trend="0%"
+        title="Interviews Scheduled"
+        value={summaryStats.interviewsScheduled.toString()}
+        trend="15%"
         trendType="up"
         gradientClasses="bg-gradient-to-r from-blue-100 to-blue-300 dark:from-blue-800 dark:to-blue-950"
         icon={DocumentRemoveIcon}
@@ -46,10 +52,10 @@ export default function SummaryCards() {
         icon={XCircleIcon}
         iconColor="text-gray-600 dark:text-gray-300"
       />
-       <SummaryCard
-        title="Offer Letters"
-        value="0"
-        trend="0%"
+      <SummaryCard
+        title="Hired Candidates"
+        value={summaryStats.hiredCandidates.toString()}
+        trend="5%"
         trendType="up"
         gradientClasses="bg-gradient-to-r from-green-100 to-green-300 dark:from-green-800 dark:to-green-950"
         icon={DocumentCheckIcon}
