@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import Image from 'next/image';
-import { MdHome, MdPieChart, MdSettings, MdOutlineCases, MdAccountCircle } from "react-icons/md";
+import { MdHome, MdPieChart, MdSettings, MdOutlineCases, MdAccountCircle, MdDocumentScanner } from "react-icons/md";
 
 // Removed placeholder SVGs
 
@@ -26,9 +26,9 @@ export default function Header({ currentPage, setCurrentPage }) {
              <MdHome className={`w-6 h-6 ${currentPage === 'home' ? 'text-white dark:text-black' : 'text-gray-900 dark:text-gray-100'}`} />
           </div>
         </button>
-        <button className="p-2 rounded-full transition-transform duration-200 transform hover:scale-110" onClick={() => handleIconClick('chart')}>
-           <div className={`p-2 rounded-full border border-gray-300 dark:border-gray-600 flex items-center justify-center transition-colors duration-200 ${currentPage === 'chart' ? 'bg-black dark:bg-white' : 'bg-transparent'}`}>
-            <MdPieChart className={`w-6 h-6 ${currentPage === 'chart' ? 'text-white dark:text-black' : 'text-gray-900 dark:text-gray-100'}`} />
+        <button className="p-2 rounded-full transition-transform duration-200 transform hover:scale-110" onClick={() => handleIconClick('applications')}>
+           <div className={`p-2 rounded-full border border-gray-300 dark:border-gray-600 flex items-center justify-center transition-colors duration-200 ${currentPage === 'applications' ? 'bg-black dark:bg-white' : 'bg-transparent'}`}>
+            <MdDocumentScanner className={`w-6 h-6 ${currentPage === 'applications' ? 'text-white dark:text-black' : 'text-gray-900 dark:text-gray-100'}`} />
            </div>
         </button>
         <button className="p-2 rounded-full transition-transform duration-200 transform hover:scale-110" onClick={() => handleIconClick('settings')}>

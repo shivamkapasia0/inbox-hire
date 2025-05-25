@@ -10,6 +10,7 @@ import ApplicationsTable from './components/ApplicationsTable';
 import NotQualifiedOverview from './components/NotQualifiedOverview';
 import ImpressionsChart from './components/ImpressionsChart';
 import SettingsPage from './components/SettingsPage';
+import ApplicationsPage from './components/ApplicationsPage';
 import { MdOutlineDocumentScanner } from 'react-icons/md';
 
 export default function Home() {
@@ -20,6 +21,8 @@ export default function Home() {
       <Header currentPage={currentPage} setCurrentPage={setCurrentPage} />
       {currentPage === 'settings' ? (
         <SettingsPage />
+      ) : currentPage === 'applications' ? (
+        <ApplicationsPage />
       ) : (
         <main className="p-4 md:p-5 lg:p-6">
           {/* Greeting and Summary Cards Section */}
