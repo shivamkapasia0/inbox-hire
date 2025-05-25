@@ -1,9 +1,10 @@
 "use client";
-import React, { useState, useMemo, useRef } from 'react';
+import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { useDataStore } from '../utils/DataStore';
 import { useToast } from './ToastProvider';
 import { FiX } from 'react-icons/fi';
 import ApplicationDetailsModal from './ApplicationDetailsModal';
+import { useSearchParams, useRouter } from 'next/navigation';
 
 const statusColors = {
   'Approve': 'bg-green-100 text-green-700',
@@ -32,6 +33,8 @@ function getStatus(app) {
 export default function ApplicationsPage() {
   const { data, updateData } = useDataStore();
   const { showToast } = useToast();
+  const searchParams = useSearchParams();
+  const router = useRouter();
   const applications = data.applications || [];
   const [selectedRows, setSelectedRows] = useState([]);
   const [search, setSearch] = useState('');
@@ -40,6 +43,24 @@ export default function ApplicationsPage() {
   const [showStatusDropdown, setShowStatusDropdown] = useState(false);
   const [selectedApplication, setSelectedApplication] = useState(null);
   const importInputRef = useRef(null);
+
+  // Handle status filter from URL
+  useEffect(() => {
+    const statusFromUrl = searchParams.get('status');
+    if (statusFromUrl) {
+      setStatusFilter(decodeURIComponent(statusFromUrl));
+    }
+  }, [searchParams]);
+
+  // Update URL when status filter changes
+  useEffect(() => {
+    if (statusFilter !== 'All') {
+      const encodedStatus = encodeURIComponent(statusFilter);
+      router.push(`/applications?status=${encodedStatus}`, { scroll: false });
+    } else {
+      router.push('/applications', { scroll: false });
+    }
+  }, [statusFilter, router]);
 
   // Map data to match required columns
   const mappedApps = applications.map((app, i) => ({

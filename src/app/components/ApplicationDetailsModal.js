@@ -1,12 +1,14 @@
 'use client';
 
 import React, { useState } from 'react';
-import { FiX, FiSend, FiPaperclip, FiChevronDown, FiChevronUp } from 'react-icons/fi';
+import { FiX, FiSend, FiPaperclip, FiChevronDown, FiChevronUp, FiClock, FiMail, FiUser } from 'react-icons/fi';
+import { useToast } from './ToastProvider';
 
 export default function ApplicationDetailsModal({ application, onClose }) {
   const [replyText, setReplyText] = useState('');
   const [isSending, setIsSending] = useState(false);
   const [expandedEmails, setExpandedEmails] = useState(new Set());
+  const { showToast } = useToast();
 
   // Mock email trail data - replace with actual data from your backend
   const emailTrail = [
@@ -48,82 +50,96 @@ export default function ApplicationDetailsModal({ application, onClose }) {
     setIsSending(true);
     try {
       // TODO: Implement actual email sending logic here
-      // await sendEmail({
-      //   to: application.contactEmail,
-      //   subject: `Re: ${application.position} at ${application.company}`,
-      //   body: replyText
-      // });
-      
-      // For now, just simulate a delay
       await new Promise(resolve => setTimeout(resolve, 1000));
-      
       setReplyText('');
-      // TODO: Refresh email trail after sending
+      showToast('Reply sent successfully!', 'success');
+      onClose(); // Close the modal after successful send
     } catch (error) {
       console.error('Failed to send reply:', error);
+      showToast('Failed to send reply. Please try again.', 'error');
     } finally {
       setIsSending(false);
     }
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-2xl shadow-xl w-full max-w-4xl max-h-[90vh] flex flex-col">
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-3xl shadow-2xl w-full max-w-4xl max-h-[90vh] flex flex-col overflow-hidden">
         {/* Header */}
-        <div className="p-6 border-b border-gray-200 flex justify-between items-center">
+        <div className="p-6 border-b border-gray-100 flex justify-between items-center bg-gradient-to-r from-blue-50 to-indigo-50">
           <div>
-            <h2 className="text-2xl font-bold text-gray-900">{application.position}</h2>
-            <p className="text-gray-600">{application.company}</p>
+            <h2 className="text-2xl font-bold text-gray-900 tracking-tight">{application.position}</h2>
+            <p className="text-gray-600 mt-1 flex items-center gap-2">
+              <FiUser className="w-4 h-4" />
+              {application.company}
+            </p>
           </div>
           <button
             onClick={onClose}
-            className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+            className="p-2 hover:bg-white/50 rounded-full transition-colors"
           >
             <FiX className="w-6 h-6 text-gray-500" />
           </button>
         </div>
 
         {/* Content */}
-        <div className="flex-1 overflow-y-auto p-6">
+        <div className="flex-1 overflow-y-auto">
           {/* Application Details */}
-          <div className="mb-8 grid grid-cols-2 gap-4">
-            <div>
-              <h3 className="text-sm font-medium text-gray-500 mb-2">Status</h3>
-              <span className={`px-3 py-1 rounded-full text-sm font-semibold ${
-                application.statusBadge === 'Approve' ? 'bg-green-100 text-green-700' :
-                application.statusBadge === 'Overdue' ? 'bg-red-100 text-red-600' :
-                'bg-gray-100 text-gray-800'
-              }`}>
-                {application.statusBadge}
-              </span>
-            </div>
-            <div>
-              <h3 className="text-sm font-medium text-gray-500 mb-2">Last Updated</h3>
-              <p className="text-gray-900">{application.lastUpdate}</p>
-            </div>
-            <div>
-              <h3 className="text-sm font-medium text-gray-500 mb-2">Source</h3>
-              <p className="text-gray-900">{application.source}</p>
-            </div>
-            <div>
-              <h3 className="text-sm font-medium text-gray-500 mb-2">Contact Email</h3>
-              <p className="text-gray-900">{application.contactEmail || 'Not available'}</p>
+          <div className="p-6 bg-gradient-to-b from-gray-50 to-white">
+            <div className="grid grid-cols-2 gap-6">
+              <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-100">
+                <h3 className="text-sm font-medium text-gray-500 mb-2 flex items-center gap-2">
+                  <FiClock className="w-4 h-4" />
+                  Status
+                </h3>
+                <span className={`px-3 py-1 rounded-full text-sm font-semibold ${
+                  application.statusBadge === 'Approve' ? 'bg-green-100 text-green-700' :
+                  application.statusBadge === 'Overdue' ? 'bg-red-100 text-red-600' :
+                  'bg-gray-100 text-gray-800'
+                }`}>
+                  {application.statusBadge}
+                </span>
+              </div>
+              <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-100">
+                <h3 className="text-sm font-medium text-gray-500 mb-2 flex items-center gap-2">
+                  <FiClock className="w-4 h-4" />
+                  Last Updated
+                </h3>
+                <p className="text-gray-900">{application.lastUpdate}</p>
+              </div>
+              <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-100">
+                <h3 className="text-sm font-medium text-gray-500 mb-2 flex items-center gap-2">
+                  <FiMail className="w-4 h-4" />
+                  Source
+                </h3>
+                <p className="text-gray-900">{application.source}</p>
+              </div>
+              <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-100">
+                <h3 className="text-sm font-medium text-gray-500 mb-2 flex items-center gap-2">
+                  <FiMail className="w-4 h-4" />
+                  Contact Email
+                </h3>
+                <p className="text-gray-900">{application.contactEmail || 'Not available'}</p>
+              </div>
             </div>
           </div>
 
           {/* Email Trail */}
-          <div className="space-y-6">
-            <h3 className="text-lg font-semibold text-gray-900">Email Trail</h3>
+          <div className="p-6">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+              <FiMail className="w-5 h-5" />
+              Email Trail
+            </h3>
             <div className="space-y-4">
               {emailTrail.map((email) => {
                 const isExpanded = expandedEmails.has(email.id);
                 return (
                   <div
                     key={email.id}
-                    className={`rounded-lg border transition-all duration-200 ${
+                    className={`rounded-xl border transition-all duration-200 ${
                       email.type === 'received'
-                        ? 'bg-gray-50 border-gray-200'
-                        : 'bg-blue-50 border-blue-200'
+                        ? 'bg-gradient-to-r from-gray-50 to-white border-gray-200'
+                        : 'bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200'
                     }`}
                   >
                     {/* Email Header - Always Visible */}
@@ -139,7 +155,7 @@ export default function ApplicationDetailsModal({ application, onClose }) {
                               {email.type === 'received' ? email.from : email.to}
                             </p>
                             <button 
-                              className="p-1 hover:bg-gray-200 rounded-full transition-colors"
+                              className="p-1 hover:bg-white/50 rounded-full transition-colors"
                               onClick={(e) => {
                                 e.stopPropagation();
                                 toggleEmail(email.id);
@@ -152,12 +168,13 @@ export default function ApplicationDetailsModal({ application, onClose }) {
                               )}
                             </button>
                           </div>
-                          <p className="text-sm text-gray-500">
+                          <p className="text-sm text-gray-500 flex items-center gap-1 mt-1">
+                            <FiClock className="w-3 h-3" />
                             {new Date(email.timestamp).toLocaleString()}
                           </p>
-                          <p className="text-sm font-medium text-gray-900 mt-1">{email.subject}</p>
+                          <p className="text-sm font-medium text-gray-900 mt-2">{email.subject}</p>
                         </div>
-                        <span className={`text-xs font-medium px-2 py-1 rounded ${
+                        <span className={`text-xs font-medium px-3 py-1 rounded-full ${
                           email.type === 'received'
                             ? 'bg-gray-200 text-gray-700'
                             : 'bg-blue-200 text-blue-700'
@@ -185,30 +202,30 @@ export default function ApplicationDetailsModal({ application, onClose }) {
         </div>
 
         {/* Reply Section */}
-        <div className="p-6 border-t border-gray-200">
+        <div className="p-6 border-t border-gray-100 bg-gradient-to-r from-gray-50 to-white">
           <div className="flex gap-4">
             <div className="flex-1">
               <textarea
                 value={replyText}
                 onChange={(e) => setReplyText(e.target.value)}
                 placeholder="Type your reply..."
-                className="w-full h-24 px-4 py-2 rounded-lg border border-gray-200 focus:ring-2 focus:ring-blue-400 focus:border-transparent resize-none"
+                className="w-full h-24 px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-blue-400 focus:border-transparent resize-none shadow-sm"
               />
             </div>
             <div className="flex flex-col gap-2">
               <button
                 onClick={handleSendReply}
                 disabled={isSending || !replyText.trim()}
-                className={`p-3 rounded-lg ${
+                className={`p-3 rounded-xl ${
                   isSending || !replyText.trim()
                     ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                    : 'bg-blue-600 text-white hover:bg-blue-700'
-                } transition-colors`}
+                    : 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white hover:from-blue-700 hover:to-indigo-700 shadow-md'
+                } transition-all duration-200`}
               >
                 <FiSend className="w-5 h-5" />
               </button>
               <button
-                className="p-3 rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 transition-colors"
+                className="p-3 rounded-xl border border-gray-200 text-gray-600 hover:bg-gray-50 transition-colors shadow-sm"
                 onClick={() => {/* TODO: Implement file attachment */}}
               >
                 <FiPaperclip className="w-5 h-5" />
