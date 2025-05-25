@@ -1,14 +1,22 @@
 'use client';
 
-import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { MdHome, MdPieChart, MdSettings, MdOutlineCases, MdAccountCircle, MdDocumentScanner } from "react-icons/md";
 
 // Removed placeholder SVGs
 
-export default function Header({ currentPage, setCurrentPage }) {
+export default function Header({ currentPage }) {
+  const router = useRouter();
+
   const handleIconClick = (iconName) => {
-    setCurrentPage(iconName);
+    if (iconName === 'home') {
+      router.push('/');
+    } else if (iconName === 'applications') {
+      router.push('/applications');
+    } else if (iconName === 'settings') {
+      router.push('/settings');
+    }
   };
 
   return (
