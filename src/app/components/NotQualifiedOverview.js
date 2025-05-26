@@ -44,41 +44,41 @@ export default function NotQualifiedOverview() {
   const { lastMonth, thisMonth } = overview;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {/* This Month */}
       <div>
-        <h3 className="text-sm font-medium text-gray-700 mb-3">This Month</h3>
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+        <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">This Month</h3>
+        <div className="bg-white/40 dark:bg-gray-800/40 rounded-lg p-4 backdrop-blur-sm border border-gray-200/50 dark:border-gray-700/50 shadow-sm">
           <div className="flex justify-between items-center mb-2">
-            <span className="text-sm text-gray-600">Total Applications</span>
-            <span className="text-sm font-medium text-gray-900">{thisMonth.total}</span>
+            <span className="text-sm text-gray-700 dark:text-gray-300">Total Applications</span>
+            <span className="text-sm font-semibold text-gray-900 dark:text-white">{thisMonth.total}</span>
           </div>
           <div className="flex justify-between items-center mb-2">
-            <span className="text-sm text-gray-600">Qualified</span>
-            <span className="text-sm font-medium text-green-600">{thisMonth.qualified}</span>
+            <span className="text-sm text-gray-700 dark:text-gray-300">Qualified</span>
+            <span className="text-sm font-semibold text-green-600 dark:text-green-400">{thisMonth.qualified}</span>
           </div>
           <div className="flex justify-between items-center">
-            <span className="text-sm text-gray-600">Not Qualified</span>
-            <span className="text-sm font-medium text-red-600">{thisMonth.notQualified}</span>
+            <span className="text-sm text-gray-700 dark:text-gray-300">Not Qualified</span>
+            <span className="text-sm font-semibold text-red-600 dark:text-red-400">{thisMonth.notQualified}</span>
           </div>
         </div>
       </div>
 
       {/* Last Month */}
       <div>
-        <h3 className="text-sm font-medium text-gray-700 mb-3">Last Month</h3>
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+        <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Last Month</h3>
+        <div className="bg-white/40 dark:bg-gray-800/40 rounded-lg p-4 backdrop-blur-sm border border-gray-200/50 dark:border-gray-700/50 shadow-sm">
           <div className="flex justify-between items-center mb-2">
-            <span className="text-sm text-gray-600">Total Applications</span>
-            <span className="text-sm font-medium text-gray-900">{lastMonth.total}</span>
+            <span className="text-sm text-gray-700 dark:text-gray-300">Total Applications</span>
+            <span className="text-sm font-semibold text-gray-900 dark:text-white">{lastMonth.total}</span>
           </div>
           <div className="flex justify-between items-center mb-2">
-            <span className="text-sm text-gray-600">Qualified</span>
-            <span className="text-sm font-medium text-green-600">{lastMonth.qualified}</span>
+            <span className="text-sm text-gray-700 dark:text-gray-300">Qualified</span>
+            <span className="text-sm font-semibold text-green-600 dark:text-green-400">{lastMonth.qualified}</span>
           </div>
           <div className="flex justify-between items-center">
-            <span className="text-sm text-gray-600">Not Qualified</span>
-            <span className="text-sm font-medium text-red-600">{lastMonth.notQualified}</span>
+            <span className="text-sm text-gray-700 dark:text-gray-300">Not Qualified</span>
+            <span className="text-sm font-semibold text-red-600 dark:text-red-400">{lastMonth.notQualified}</span>
           </div>
         </div>
       </div>

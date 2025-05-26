@@ -34,9 +34,9 @@ export default function Home() {
             <SummaryCards />
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mt-4">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mt-4 h-full">
             {/* Left Column: Application Type and Application Sources */}
-            <div className="lg:col-span-1 space-y-4">
+            <div className="lg:col-span-1 space-y-4 flex flex-col h-full min-h-[550px]">
               <DashboardSection title="Application Type">
                 <WorkingType />
               </DashboardSection>
@@ -47,7 +47,7 @@ export default function Home() {
             </div>
 
             {/* Right Column: Recent Applications */}
-            <div className="lg:col-span-2">
+            <div className="lg:col-span-2 h-full">
               <DashboardSection 
                 title={
                   <div className="flex items-center gap-2">
@@ -56,6 +56,7 @@ export default function Home() {
                   </div>
                 }
                 variant="applications"
+                className="h-full"
               >
                 <ApplicationsTable />
               </DashboardSection>

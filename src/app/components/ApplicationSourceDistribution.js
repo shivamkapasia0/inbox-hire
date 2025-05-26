@@ -45,7 +45,7 @@ export default function ApplicationSourceDistribution() {
 
   return (
     <div className="space-y-4">
-      <h3 className="text-lg font-semibold text-gray-800 mb-4">Application Sources</h3>
+      {/* <h3 className="text-lg font-semibold text-gray-800 mb-4">Application Sources</h3> */}
       {Object.entries(distribution).map(([source, count]) => {
         const percentage = total > 0 ? Math.round((count / total) * 100) : 0;
         return (
