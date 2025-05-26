@@ -13,26 +13,27 @@ import { getSummaryStats } from '../utils/data';
 const SummaryCard = ({ title, value, trend, trendType, gradientClasses, icon: Icon, iconColor, onClick }) => {
   return (
     <div 
-      className={`p-6 rounded-2xl shadow-lg cursor-pointer transition-all duration-200 hover:scale-[1.02] ${gradientClasses}`}
+      className={`p-6 rounded-2xl shadow-lg cursor-pointer transition-all duration-200 hover:scale-[1.02] ${gradientClasses} relative overflow-hidden`}
       onClick={onClick}
     >
-      <div className="flex items-center justify-between">
+      <div className="absolute top-4 right-4 p-2 rounded-full bg-white bg-opacity-30 dark:bg-gray-700 dark:bg-opacity-30 flex items-center justify-center">
+        {Icon && <Icon className={`w-5 h-5 ${iconColor}`} />}
+      </div>
+
+      <div className="flex flex-col h-full justify-between pr-12">
         <div>
           <p className="text-sm font-medium text-gray-600 dark:text-gray-300">{title}</p>
-          <p className="text-2xl font-bold text-gray-900 dark:text-white mt-1">{value}</p>
-          <div className="flex items-center mt-2">
-            <span className={`text-sm font-medium ${
+        </div>
+        <div className="text-2xl font-bold text-gray-900 dark:text-white mt-1">
+            {value}
+        </div>
+        <div className={`text-sm font-medium ${
               trendType === 'up' ? 'text-green-600' : 'text-red-600'
             }`}>
               {trend}
-            </span>
+            </div>
             <span className="text-sm text-gray-500 dark:text-gray-400 ml-2">vs last month</span>
           </div>
-        </div>
-        <div className={`p-3 rounded-xl ${iconColor}`}>
-          <Icon className="w-8 h-8" />
-        </div>
-      </div>
     </div>
   );
 };
@@ -98,7 +99,7 @@ export default function SummaryCards() {
         value={stats.totalApplied.toString()}
         trend={trends.totalApplied}
         trendType={trends.totalApplied.startsWith('+') ? 'up' : 'down'}
-        gradientClasses="bg-gradient-to-r from-blue-100 to-blue-300 dark:from-blue-700 dark:to-blue-900"
+        gradientClasses="bg-gradient-to-br from-blue-50 to-blue-200"
         icon={DocumentTextIcon}
         iconColor="text-blue-600 dark:text-blue-300"
         onClick={() => handleCardClick('all')}
@@ -108,7 +109,7 @@ export default function SummaryCards() {
         value={stats.interviewScheduled.toString()}
         trend={trends.interviewScheduled}
         trendType={trends.interviewScheduled.startsWith('+') ? 'up' : 'down'}
-        gradientClasses="bg-gradient-to-r from-green-100 to-green-300 dark:from-green-700 dark:to-green-900"
+        gradientClasses="bg-gradient-to-br from-green-100 to-green-300"
         icon={CheckCircleIcon}
         iconColor="text-green-600 dark:text-green-300"
         onClick={() => handleCardClick('Interview')}
@@ -118,7 +119,7 @@ export default function SummaryCards() {
         value={stats.noResponse.toString()}
         trend={trends.noResponse}
         trendType={trends.noResponse.startsWith('+') ? 'up' : 'down'}
-        gradientClasses="bg-gradient-to-r from-gray-100 to-gray-300 dark:from-gray-700 dark:to-gray-900"
+        gradientClasses="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-700 dark:to-gray-800"
         icon={XCircleIcon}
         iconColor="text-gray-600 dark:text-gray-300"
         onClick={() => handleCardClick('Other')}
@@ -128,7 +129,7 @@ export default function SummaryCards() {
         value={stats.notSelected.toString()}
         trend={trends.notSelected}
         trendType={trends.notSelected.startsWith('+') ? 'up' : 'down'}
-        gradientClasses="bg-gradient-to-r from-red-100 to-red-300 dark:from-red-700 dark:to-red-900"
+        gradientClasses="bg-gradient-to-br from-pink-200 to-red-300"
         icon={XCircleIcon}
         iconColor="text-red-600 dark:text-red-300"
         onClick={() => handleCardClick('Rejected')}
@@ -138,7 +139,7 @@ export default function SummaryCards() {
         value={stats.inProgress.toString()}
         trend={trends.inProgress}
         trendType={trends.inProgress.startsWith('+') ? 'up' : 'down'}
-        gradientClasses="bg-gradient-to-r from-amber-100 to-amber-300 dark:from-amber-700 dark:to-amber-900"
+        gradientClasses="bg-gradient-to-br from-yellow-200 to-orange-300"
         icon={ClockIcon}
         iconColor="text-amber-600 dark:text-amber-300"
         onClick={() => handleCardClick('Offer')}
