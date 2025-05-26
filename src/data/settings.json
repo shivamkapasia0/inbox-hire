@@ -68,6 +68,6 @@
     "refreshInterval": 5
   },
   "api": {
-    "geminiKey": ""
+    "geminiKey": "API KEY HERE"
   }
 }
