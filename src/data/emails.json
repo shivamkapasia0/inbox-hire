@@ -1,0 +1,67 @@
+[
+  {
+    "id": "1748230488786",
+    "from": "recruiting@google.com",
+    "to": "shivam@inbound.postmarkapp.com",
+    "subject": "Offer Letter for Frontend Developer",
+    "text": "Congratulations! You've been selected for the Frontend Developer role at Google.",
+    "html": "<p>Congratulations! You've been selected for the <strong>Frontend Developer</strong> role at <strong>Google</strong>.</p>",
+    "date": "Fri, 23 May 2025 10:00:00 +0530",
+    "status": "offer",
+    "jobTitle": "Frontend Developer",
+    "company": "Google",
+    "type": "fullTime"
+  },
+  {
+    "id": "1748230488787",
+    "from": "noreply@amazon.jobs",
+    "to": "shivam@inbound.postmarkapp.com",
+    "subject": "Application Received – Software Development Engineer",
+    "text": "We've received your application for the Software Development Engineer position at Amazon.",
+    "html": "<p>We've received your application for the <strong>Software Development Engineer</strong> position at <strong>Amazon</strong>.</p>",
+    "date": "Fri, 23 May 2025 11:00:00 +0530",
+    "status": "applied",
+    "jobTitle": "Software Development Engineer",
+    "company": "Amazon",
+    "type": "fullTime"
+  },
+  {
+    "id": "1748230488788",
+    "from": "recruiter@microsoft.com",
+    "to": "shivam@inbound.postmarkapp.com",
+    "subject": "Interview Scheduled – Cloud Engineer Role",
+    "text": "Your interview for the Cloud Engineer role at Microsoft is scheduled for May 25 at 2 PM IST.",
+    "html": "<p>Your interview for the <strong>Cloud Engineer</strong> role at <strong>Microsoft</strong> is scheduled for <strong>May 25 at 2 PM IST</strong>.</p>",
+    "date": "Fri, 23 May 2025 12:00:00 +0530",
+    "status": "interview",
+    "jobTitle": "Cloud Engineer",
+    "company": "Microsoft",
+    "type": "fullTime"
+  },
+  {
+    "id": "1748230488789",
+    "from": "hr@meta.com",
+    "to": "shivam@inbound.postmarkapp.com",
+    "subject": "Application Status – UI/UX Designer",
+    "text": "Thank you for applying to Meta. We regret to inform you that you were not selected.",
+    "html": "<p>Thank you for applying to <strong>Meta</strong>. We regret to inform you that you were not selected.</p>",
+    "date": "Fri, 23 May 2025 13:00:00 +0530",
+    "status": "rejected",
+    "jobTitle": "UI/UX Designer",
+    "company": "Meta",
+    "type": "Internship"
+  },
+  {
+    "id": "1748230488790",
+    "from": "jobs@netflix.com",
+    "to": "shivam@inbound.postmarkapp.com",
+    "subject": "Follow-up on your Data Engineer Application",
+    "text": "We wanted to check in and see if you're still interested in the Data Engineer position at Netflix.",
+    "html": "<p>We wanted to check in and see if you're still interested in the <strong>Data Engineer</strong> position at <strong>Netflix</strong>.</p>",
+    "date": "Fri, 23 May 2025 14:00:00 +0530",
+    "status": "followup",
+    "jobTitle": "Data Engineer",
+    "company": "Netflix",
+    "type": "Contract"
+  }
+]
