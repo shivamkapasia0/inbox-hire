@@ -1,12 +1,13 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Header from '../../components/Header';
 import { MdEmail, MdCalendarToday, MdArrowBack } from 'react-icons/md';
 import { getApplicationById } from '../../utils/data';
 
 export default function ApplicationDetailsPage({ params }) {
+  const resolvedParams = React.use(params);
   const [application, setApplication] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -15,7 +16,7 @@ export default function ApplicationDetailsPage({ params }) {
   useEffect(() => {
     const loadApplication = async () => {
       try {
-        const data = await getApplicationById(params.id);
+        const data = await getApplicationById(resolvedParams.id);
         setApplication(data);
       } catch (err) {
         setError(err.message);
@@ -25,7 +26,7 @@ export default function ApplicationDetailsPage({ params }) {
     };
 
     loadApplication();
-  }, [params.id]);
+  }, [resolvedParams.id]);
 
   if (loading) {
     return (

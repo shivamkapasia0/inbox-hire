@@ -1,13 +1,15 @@
 import { NextResponse } from 'next/server';
 import fs from 'fs/promises';
 import path from 'path';
+import { categorizeEmailWithGemini } from '@/app/utils/gemini';
+import { sendToAllClients } from '../events/route';
 
 // Disable the default body parser
-export const config = {
-  api: {
-    bodyParser: false,
-  },
-};
+// export const config = {
+//   api: {
+//     bodyParser: false,
+//   },
+// };
 
 const rawJson = {
     "FromName": "shivam kapasia",
@@ -155,26 +157,21 @@ async function ensureDataDirectory() {
 // Helper function to safely parse JSON
 function safeJsonParse(str) {
   try {
-    // First try normal parsing
     return JSON.parse(str);
   } catch (error) {
     console.log('Initial JSON parse failed, attempting to fix common issues...');
     
     try {
-      // Try to fix common JSON issues
       let fixedStr = str;
       
-      // Fix missing closing brackets
       if (str.includes('"Attachments": [') && !str.includes(']')) {
         fixedStr = str + ']';
       }
       
-      // Fix missing closing braces
       if (str.includes('{') && !str.includes('}')) {
         fixedStr = str + '}';
       }
       
-      // Try parsing the fixed string
       return JSON.parse(fixedStr);
     } catch (fixError) {
       console.error('Failed to fix JSON:', fixError);
@@ -183,11 +180,67 @@ function safeJsonParse(str) {
   }
 }
 
+// Helper function to get settings
+async function getSettings() {
+  const filePath = path.join(process.cwd(), 'src', 'data', 'settings.json');
+  try {
+    console.log('Reading settings from:', filePath);
+    const fileContent = await fs.readFile(filePath, 'utf-8');
+    const settings = JSON.parse(fileContent);
+    
+    // Validate settings structure
+    if (!settings || typeof settings !== 'object') {
+      throw new Error('Invalid settings format');
+    }
+    
+    // Ensure api section exists
+    if (!settings.api) {
+      settings.api = {};
+    }
+    
+    // Log settings (excluding sensitive data)
+    const safeSettings = {
+      ...settings,
+      api: {
+        ...settings.api,
+        geminiKey: settings.api.geminiKey ? '***' : undefined
+      }
+    };
+    console.log('Settings loaded:', safeSettings);
+    
+    return settings;
+  } catch (error) {
+    console.error('Error reading settings:', error);
+    throw error;
+  }
+}
+
+// Required exports for Next.js App Router
+export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
+
+// Test endpoint to verify the route is working
+export async function GET() {
+  console.log('GET request received on /api/inbound-email');
+  return NextResponse.json({ status: 'inbound-email endpoint is working' });
+}
+
 export async function POST(request) {
+  console.log('=== Inbound Email Webhook Received ===');
+  console.log('Request method:', request.method);
+  console.log('Request URL:', request.url);
+  console.log('Request headers:', Object.fromEntries(request.headers));
+  console.log('Content-Type:', request.headers.get('content-type'));
+  
   try {
     // Get raw body as text
+    console.log('Attempting to read raw body...');
     const rawBody = await request.text();
-    console.log('Received raw body:', rawBody.substring(0, 200) + '...'); // Log first 200 chars
+    console.log('Raw body length:', rawBody.length);
+    
+    // Check if it's a Postmark webhook
+    const isPostmark = request.headers.get('x-postmark-token') !== null;
+    console.log('Is Postmark webhook:', isPostmark);
     
     let data;
     try {
@@ -199,6 +252,9 @@ export async function POST(request) {
         { status: 400 }
       );
     }
+
+    // Log the full data for debugging
+    console.log('Parsed webhook data:', JSON.stringify(data, null, 2));
 
     // Validate required fields
     const requiredFields = ['From', 'To', 'Subject', 'TextBody', 'HtmlBody', 'Date'];
@@ -212,17 +268,44 @@ export async function POST(request) {
       );
     }
 
-    // Extract required fields
+    // Get settings
+    console.log('Fetching settings...');
+    let settings;
+    try {
+      settings = await getSettings();
+      console.log('Settings fetched successfully');
+    } catch (settingsError) {
+      console.error('Failed to load settings:', settingsError);
+      return NextResponse.json(
+        { error: 'Failed to load settings', details: settingsError.message },
+        { status: 500 }
+      );
+    }
+
+    // Prepare email object
     const email = {
-      id: Date.now().toString(),
+      id: data.MessageID || Date.now().toString(),
       from: data.From,
       to: data.To,
       subject: data.Subject,
       text: data.TextBody,
       html: data.HtmlBody,
       date: data.Date,
-      status: detectStatus(data.Subject, data.TextBody)
+      messageId: data.MessageID,
+      replyTo: data.ReplyTo,
+      attachments: data.Attachments || []
     };
+
+    // Try to categorize with Gemini first
+    try {
+      console.log('Attempting to categorize with Gemini...');
+      console.log('Email data:', email);
+      email.status = await categorizeEmailWithGemini(email, settings);
+      console.log('Email categorized using Gemini:', email.status);
+    } catch (geminiError) {
+      console.log('Falling back to custom categorization logic:', geminiError.message);
+      email.status = detectStatus(data.Subject, data.TextBody);
+    }
 
     // Ensure data directory exists
     await ensureDataDirectory();
@@ -238,13 +321,27 @@ export async function POST(request) {
       console.log('Creating new emails.json file');
     }
 
-    // Add new email
-    emails.push(email);
+    // Check if email with same MessageID already exists
+    const existingEmailIndex = emails.findIndex(e => e.messageId === email.messageId);
+    if (existingEmailIndex !== -1) {
+      // Update existing email
+      emails[existingEmailIndex] = email;
+    } else {
+      // Add new email
+      emails.push(email);
+    }
 
     // Save updated emails
     await fs.writeFile(filePath, JSON.stringify(emails, null, 2));
 
-    return NextResponse.json({ success: true });
+    // Send real-time update to all connected clients
+    console.log('Sending real-time update for new email');
+    await sendToAllClients({
+      type: 'new_email',
+      email: email
+    });
+
+    return NextResponse.json({ success: true, message: 'Email processed successfully' });
   } catch (error) {
     console.error('Error processing inbound email:', error);
     return NextResponse.json(

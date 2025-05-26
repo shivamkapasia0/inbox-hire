@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Image from "next/image";
 import Header from './components/Header';
 import DashboardHeader from './components/DashboardHeader';
@@ -14,10 +14,21 @@ import ApplicationsPage from './components/ApplicationsPage';
 import { MdOutlineDocumentScanner } from 'react-icons/md';
 import ApplicationSourceDistribution from './components/ApplicationSourceDistribution';
 import { useSettings } from './utils/useSettings';
+import { useRealtimeUpdates } from './utils/useRealtimeUpdates';
 
 export default function Home() {
   const [currentPage, setCurrentPage] = useState('home');
   const { settings } = useSettings();
+  const { lastUpdate } = useRealtimeUpdates();
+  const [refreshKey, setRefreshKey] = useState(0);
+
+  // Handle real-time updates
+  useEffect(() => {
+    if (lastUpdate) {
+      console.log('New email received, refreshing dashboard...');
+      setRefreshKey(prev => prev + 1);
+    }
+  }, [lastUpdate]);
 
   return (
     <div className="min-h-screen text-gray-900 dark:text-white">
@@ -34,7 +45,7 @@ export default function Home() {
               <h1 className="text-xl font-semibold mb-4 text-gray-800 dark:text-white">
                 Good Morning, Welcome back!
               </h1>
-              <SummaryCards />
+              <SummaryCards key={`summary-${refreshKey}`} />
             </div>
           )}
 
@@ -43,13 +54,13 @@ export default function Home() {
             <div className="lg:col-span-1 space-y-4 flex flex-col h-full min-h-[550px]">
               {settings.dashboard?.showSections?.workingType && (
                 <DashboardSection title="Application Type">
-                  <WorkingType />
+                  <WorkingType key={`working-type-${refreshKey}`} />
                 </DashboardSection>
               )}
 
               {settings.dashboard?.showSections?.applicationSources && (
                 <DashboardSection title="Application Sources">
-                  <ApplicationSourceDistribution />
+                  <ApplicationSourceDistribution key={`sources-${refreshKey}`} />
                 </DashboardSection>
               )}
             </div>
@@ -67,7 +78,7 @@ export default function Home() {
                   variant="applications"
                   className="h-full"
                 >
-                  <ApplicationsTable />
+                  <ApplicationsTable key={`applications-${refreshKey}`} />
                 </DashboardSection>
               </div>
             )}
@@ -76,12 +87,12 @@ export default function Home() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-4">
             {settings.dashboard?.showSections?.jobsOverview && (
               <DashboardSection title="Jobs Applied Overview">
-                <NotQualifiedOverview />
+                <NotQualifiedOverview key={`overview-${refreshKey}`} />
               </DashboardSection>
             )}
             {settings.dashboard?.showSections?.impressions && (
               <DashboardSection title="Impressions">
-                <ImpressionsChart />
+                <ImpressionsChart key={`impressions-${refreshKey}`} />
               </DashboardSection>
             )}
           </div>

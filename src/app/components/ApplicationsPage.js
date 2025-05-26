@@ -6,6 +6,10 @@ import { FiX } from 'react-icons/fi';
 import ApplicationDetailsModal from './ApplicationDetailsModal';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { fetchApplications } from '../utils/data';
+import { useRealtimeUpdates } from '../utils/useRealtimeUpdates';
+import { useSettings } from '../utils/useSettings';
+import { useNotification } from '../context/NotificationContext';
+import { toast } from 'react-hot-toast';
 
 const statusColors = {
   'Interview': 'bg-blue-100 text-blue-800',
@@ -35,6 +39,10 @@ export default function ApplicationsPage() {
   const [showStatusDropdown, setShowStatusDropdown] = useState(false);
   const [selectedApplication, setSelectedApplication] = useState(null);
   const importInputRef = useRef(null);
+  const { isConnected, lastEvent, lastUpdate } = useRealtimeUpdates();
+  const { settings } = useSettings();
+  const { showNotification } = useNotification();
+  const lastUpdateRef = useRef(lastUpdate);
 
   // Handle status filter from URL
   useEffect(() => {
@@ -54,18 +62,67 @@ export default function ApplicationsPage() {
     }
   }, [statusFilter, router]);
 
+  // Load applications
+  const loadApplications = async () => {
+    try {
+      console.log('Loading applications...');
+      const data = await fetchApplications();
+      console.log('Fetched applications:', data);
+      setApplications(data);
+      setError(null);
+    } catch (err) {
+      console.error('Error loading applications:', err);
+      setError(err.message);
+      toast.error('Failed to load applications');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Handle real-time updates
   useEffect(() => {
-    const loadApplications = async () => {
-      try {
-        const data = await fetchApplications();
-        setApplications(data);
-      } catch (err) {
-        setError(err.message);
-      } finally {
-        setLoading(false);
+    if (lastUpdate && lastUpdate !== lastUpdateRef.current) {
+      console.log('New email received, reloading applications...');
+      lastUpdateRef.current = lastUpdate;
+      loadApplications();
+      showNotification('New Application', 'A new application has been received');
+      
+      // If we're on the applications page, scroll to top
+      if (window.location.pathname === '/applications') {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
       }
+    }
+  }, [lastUpdate, showNotification]);
+
+  // Auto-refresh based on settings
+  useEffect(() => {
+    const refreshInterval = settings?.dashboard?.refreshInterval || 5; // Default to 5 minutes if not set
+    console.log('Setting up auto-refresh interval:', refreshInterval, 'minutes');
+    
+    const intervalId = setInterval(() => {
+      console.log('Auto-refreshing applications...');
+      loadApplications();
+    }, refreshInterval * 60 * 1000);
+
+    return () => {
+      console.log('Cleaning up auto-refresh interval');
+      clearInterval(intervalId);
+    };
+  }, [settings?.dashboard?.refreshInterval]);
+
+  // Refresh on window focus
+  useEffect(() => {
+    const handleFocus = () => {
+      console.log('Window focused, refreshing applications...');
+      loadApplications();
     };
 
+    window.addEventListener('focus', handleFocus);
+    return () => window.removeEventListener('focus', handleFocus);
+  }, []);
+
+  // Initial load
+  useEffect(() => {
     loadApplications();
   }, []);
 
@@ -114,6 +171,7 @@ export default function ApplicationsPage() {
     setStatusFilter('All');
     setGroupBy('');
     setSelectedRows([]);
+    loadApplications();
     showToast('Refreshed!', 'success');
   };
 
@@ -141,7 +199,15 @@ export default function ApplicationsPage() {
 
   return (
     <div className="max-w-6xl mx-auto py-8 px-2 md:px-6">
-      <h1 className="text-2xl md:text-3xl font-bold mb-8 text-gray-900 dark:text-white tracking-tight">Applications</h1>
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-2xl font-bold">Applications</h1>
+        <div className="flex items-center gap-2">
+          <div className={`w-2 h-2 rounded-full ${isConnected ? 'bg-green-500' : 'bg-red-500'}`} />
+          <span className="text-sm text-gray-600 dark:text-gray-400">
+            {isConnected ? 'Connected' : 'Disconnected'}
+          </span>
+        </div>
+      </div>
       
       {/* Filters above search bar */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-4">

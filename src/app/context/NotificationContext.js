@@ -1,9 +1,17 @@
 'use client';
 
-import { createContext, useContext, useState, useEffect } from 'react';
+import { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 
 const NotificationContext = createContext();
+
+export function useNotification() {
+  const context = useContext(NotificationContext);
+  if (!context) {
+    throw new Error('useNotification must be used within a NotificationProvider');
+  }
+  return context;
+}
 
 export function NotificationProvider({ children }) {
   const [notifications, setNotifications] = useState([]);
@@ -12,10 +20,10 @@ export function NotificationProvider({ children }) {
   const router = useRouter();
 
   // Function to add a new notification
-  const addNotification = (email) => {
+  const addNotification = useCallback((email) => {
     console.log('Adding new notification for email:', email);
     const newNotification = {
-      id: email.id,
+      id: email.id || email.messageId || Date.now().toString(),
       message: `New email from ${email.from}: ${email.subject}`,
       timestamp: new Date().toISOString(),
       read: false,
@@ -34,10 +42,19 @@ export function NotificationProvider({ children }) {
     });
     
     setUnreadCount(prev => prev + 1);
-  };
+
+    // Show browser notification if permission granted
+    if ('Notification' in window && Notification.permission === 'granted') {
+      new Notification('New Email Received', {
+        body: `Subject: ${email.subject}`,
+        icon: '/favicon.ico',
+        tag: newNotification.id // Prevent duplicate notifications
+      });
+    }
+  }, []);
 
   // Function to mark notifications as read
-  const markAsRead = (notificationId) => {
+  const markAsRead = useCallback((notificationId) => {
     setNotifications(prev =>
       prev.map(notification =>
         notification.id === notificationId
@@ -46,17 +63,21 @@ export function NotificationProvider({ children }) {
       )
     );
     setUnreadCount(prev => Math.max(0, prev - 1));
-  };
+  }, []);
 
   // Function to handle notification click
-  const handleNotificationClick = (notification) => {
+  const handleNotificationClick = useCallback((notification) => {
     markAsRead(notification.id);
     router.push('/applications');
-  };
+  }, [markAsRead, router]);
 
   // Poll for new emails every 5 seconds
   useEffect(() => {
+    let isPolling = true;
+
     const pollEmails = async () => {
+      if (!isPolling) return;
+
       try {
         console.log('Polling for new emails...');
         const response = await fetch('/api/get-emails');
@@ -102,8 +123,12 @@ export function NotificationProvider({ children }) {
 
     // Set up polling interval
     const interval = setInterval(pollEmails, 5000); // Poll every 5 seconds
-    return () => clearInterval(interval);
-  }, [notifications]);
+
+    return () => {
+      isPolling = false;
+      clearInterval(interval);
+    };
+  }, [notifications, addNotification]);
 
   return (
     <NotificationContext.Provider
@@ -112,18 +137,11 @@ export function NotificationProvider({ children }) {
         unreadCount,
         markAsRead,
         handleNotificationClick,
-        lastPollTime
+        lastPollTime,
+        addNotification
       }}
     >
       {children}
     </NotificationContext.Provider>
   );
-}
-
-export function useNotifications() {
-  const context = useContext(NotificationContext);
-  if (!context) {
-    throw new Error('useNotifications must be used within a NotificationProvider');
-  }
-  return context;
 } 

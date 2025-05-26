@@ -1,10 +1,11 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { getRecentApplications } from '../utils/data';
 import ApplicationDetailsModal from './ApplicationDetailsModal';
 import { useSettings } from '../utils/useSettings';
+import { useRealtimeUpdates } from '../utils/useRealtimeUpdates';
 
 const statusColors = {
   'offer': {
@@ -36,36 +37,80 @@ export default function ApplicationsTable() {
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedApplication, setSelectedApplication] = useState(null);
   const { settings } = useSettings();
+  const { lastUpdate } = useRealtimeUpdates();
+  const lastUpdateRef = useRef(lastUpdate);
 
+  const loadApplications = async () => {
+    try {
+      console.log('Loading recent applications...');
+      const data = await getRecentApplications();
+      console.log('Fetched recent applications:', data);
+      
+      // Sort applications based on settings
+      const sortedData = [...data].sort((a, b) => {
+        switch (settings.dashboard?.sortOrder || 'newest') {
+          case 'newest':
+            return new Date(b.date) - new Date(a.date);
+          case 'oldest':
+            return new Date(a.date) - new Date(b.date);
+          case 'company':
+            return a.company.localeCompare(b.company);
+          case 'status':
+            return a.status.localeCompare(b.status);
+          default:
+            return 0;
+        }
+      });
+      setApplications(sortedData);
+      setError(null);
+    } catch (err) {
+      console.error('Error loading recent applications:', err);
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Initial load
   useEffect(() => {
-    const loadApplications = async () => {
-      try {
-        const data = await getRecentApplications();
-        // Sort applications based on settings
-        const sortedData = [...data].sort((a, b) => {
-          switch (settings.dashboard?.sortOrder || 'newest') {
-            case 'newest':
-              return new Date(b.date) - new Date(a.date);
-            case 'oldest':
-              return new Date(a.date) - new Date(b.date);
-            case 'company':
-              return a.company.localeCompare(b.company);
-            case 'status':
-              return a.status.localeCompare(b.status);
-            default:
-              return 0;
-          }
-        });
-        setApplications(sortedData);
-      } catch (err) {
-        setError(err.message);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     loadApplications();
   }, [settings.dashboard?.sortOrder]);
+
+  // Handle real-time updates
+  useEffect(() => {
+    if (lastUpdate && lastUpdate !== lastUpdateRef.current) {
+      console.log('New email received in ApplicationsTable, reloading...');
+      lastUpdateRef.current = lastUpdate;
+      loadApplications();
+    }
+  }, [lastUpdate]);
+
+  // Auto-refresh based on settings
+  useEffect(() => {
+    const refreshInterval = settings?.dashboard?.refreshInterval || 5; // Default to 5 minutes if not set
+    console.log('Setting up auto-refresh interval:', refreshInterval, 'minutes');
+    
+    const intervalId = setInterval(() => {
+      console.log('Auto-refreshing recent applications...');
+      loadApplications();
+    }, refreshInterval * 60 * 1000);
+
+    return () => {
+      console.log('Cleaning up auto-refresh interval');
+      clearInterval(intervalId);
+    };
+  }, [settings?.dashboard?.refreshInterval]);
+
+  // Refresh on window focus
+  useEffect(() => {
+    const handleFocus = () => {
+      console.log('Window focused, refreshing recent applications...');
+      loadApplications();
+    };
+
+    window.addEventListener('focus', handleFocus);
+    return () => window.removeEventListener('focus', handleFocus);
+  }, []);
 
   if (loading) {
     return (
@@ -94,187 +139,85 @@ export default function ApplicationsTable() {
 
   const itemsPerPage = settings.dashboard?.itemsPerPage || 10;
   const totalPages = Math.ceil(filteredApplications.length / itemsPerPage);
-  const currentApplications = filteredApplications.slice(
-    (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage
-  );
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const currentApplications = filteredApplications.slice(startIndex, endIndex);
 
-  const filters = ['all', 'interview', 'other', 'offer', 'rejected'];
-
-  const handlePageChange = (page) => {
-    if (page >= 1 && page <= totalPages) {
-      setCurrentPage(page);
-    }
-  };
-
-  const handleRowClick = (applicationId) => {
-    router.push(`/applications/${applicationId}`);
+  const handleRowClick = (id) => {
+    router.push(`/applications/${id}`);
   };
 
   return (
-    <div>
-      {/* Filter Buttons */}
-      <div className="flex justify-between items-center mb-6">
-        <div className="flex space-x-3 overflow-x-auto pb-2">
-          {filters.map(f => (
-            <button
-              key={f}
-              className={`flex-shrink-0 px-6 py-2 text-sm font-medium rounded-full transition-colors duration-200 ${
-                filter.replace(' ', '-').toLowerCase() === f.replace(' ', '-').toLowerCase()
-                  ? 'bg-blue-600 text-white shadow-md'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-              }`}
-              onClick={() => {
-                setFilter(f.toLowerCase());
-                setCurrentPage(1);
-              }}
-            >
-              {f}
-            </button>
-          ))}
-        </div>
-
-        {/* Pagination */}
-        {totalPages > 1 && (
-          <div className="flex items-center space-x-2">
-            <button
-              onClick={() => handlePageChange(currentPage - 1)}
-              disabled={currentPage === 1}
-              className="p-2 text-gray-600 hover:text-gray-900 disabled:opacity-50 disabled:cursor-not-allowed"
-              aria-label="Previous page"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                <path fillRule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clipRule="evenodd" />
-              </svg>
-            </button>
-            <span className="text-sm text-gray-600">
-              {currentPage} / {totalPages}
-            </span>
-            <button
-              onClick={() => handlePageChange(currentPage + 1)}
-              disabled={currentPage === totalPages}
-              className="p-2 text-gray-600 hover:text-gray-900 disabled:opacity-50 disabled:cursor-not-allowed"
-              aria-label="Next page"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
-              </svg>
-            </button>
-          </div>
-        )}
+    <div className="space-y-4">
+      {/* Table */}
+      <div className="overflow-x-auto">
+        <table className="min-w-full divide-y divide-gray-200">
+          <thead className="bg-gray-50">
+            <tr>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Position
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Company
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Status
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Date
+              </th>
+            </tr>
+          </thead>
+          <tbody className="bg-white divide-y divide-gray-200">
+            {currentApplications.map((application) => (
+              <tr
+                key={application.id}
+                onClick={() => handleRowClick(application.id)}
+                className="hover:bg-gray-50 cursor-pointer transition-colors"
+              >
+                <td className="px-6 py-4 whitespace-nowrap">
+                  <div className="text-sm font-medium text-gray-900">{application.jobTitle}</div>
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap">
+                  <div className="text-sm text-gray-500">{application.company}</div>
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap">
+                  <span
+                    className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${statusColors[application.status].text} ${statusColors[application.status].bg}`}
+                  >
+                    {application.status.charAt(0).toUpperCase() + application.status.slice(1)}
+                  </span>
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  {new Date(application.date).toLocaleDateString()}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
 
-      {/* Applications Table/Grid */}
-      {settings.dashboard?.defaultView === 'grid' ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {currentApplications.map((application) => (
-            <div
-              key={application.id}
-              className="bg-white rounded-lg shadow-md p-4 hover:shadow-lg transition-shadow cursor-pointer"
-              onClick={() => handleRowClick(application.id)}
-            >
-              <h3 className="text-lg font-semibold text-blue-700 mb-2">{application.jobTitle}</h3>
-              <p className="text-gray-800 mb-2">{application.company}</p>
-              <div className="flex justify-between items-center">
-                <span
-                  className={`relative inline-block px-3 py-1 font-semibold leading-tight rounded-full ${statusColors[application.status].text} ${statusColors[application.status].bg}`}
-                >
-                  <span className="relative">{application.status.charAt(0).toUpperCase() + application.status.slice(1)}</span>
-                </span>
-                <span className="text-sm text-gray-600">{application.date}</span>
-              </div>
-            </div>
-          ))}
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <div className="flex justify-between items-center mt-4">
+          <button
+            onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+            disabled={currentPage === 1}
+            className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50"
+          >
+            Previous
+          </button>
+          <span className="text-sm text-gray-700">
+            Page {currentPage} of {totalPages}
+          </span>
+          <button
+            onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+            disabled={currentPage === totalPages}
+            className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50"
+          >
+            Next
+          </button>
         </div>
-      ) : settings.dashboard?.defaultView === 'compact' ? (
-        <div className="space-y-2">
-          {currentApplications.map((application) => (
-            <div
-              key={application.id}
-              className="flex items-center justify-between bg-white rounded-lg shadow-sm p-3 hover:bg-gray-50 transition-colors cursor-pointer"
-              onClick={() => handleRowClick(application.id)}
-            >
-              <div className="flex items-center space-x-4">
-                <span className="text-gray-500">#{application.id}</span>
-                <div>
-                  <h3 className="text-sm font-medium text-blue-700">{application.jobTitle}</h3>
-                  <p className="text-xs text-gray-600">{application.company}</p>
-                </div>
-              </div>
-              <div className="flex items-center space-x-4">
-                <span
-                  className={`relative inline-block px-2 py-1 text-xs font-semibold leading-tight rounded-full ${statusColors[application.status].text} ${statusColors[application.status].bg}`}
-                >
-                  <span className="relative">{application.status.charAt(0).toUpperCase() + application.status.slice(1)}</span>
-                </span>
-                <span className="text-xs text-gray-500">{application.date}</span>
-              </div>
-            </div>
-          ))}
-        </div>
-      ) : (
-        <div className="overflow-x-auto">
-          <div className="h-[384px] relative">
-            <table className="min-w-full leading-normal">
-              <thead className="sticky top-0 z-10 bg-gray-100/80 dark:bg-gray-700/80">
-                <tr className="rounded-t-lg">
-                  <th className="px-5 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider first:rounded-tl-lg">
-                    #
-                  </th>
-                  <th className="px-5 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">
-                    Job Title
-                  </th>
-                  <th className="px-5 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">
-                    Company
-                  </th>
-                  <th className="px-5 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">
-                    Status
-                  </th>
-                  <th className="px-5 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider last:rounded-tr-lg">
-                    Date
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="overflow-y-auto">
-                {currentApplications.map((application, index) => (
-                  <tr 
-                    key={application.id} 
-                    className="bborder-gray-200/50 bg-gray-50/30 hover:bg-gray-50 transition-colors duration-150 h-16 cursor-pointer"
-                    onClick={() => handleRowClick(application.id)}
-                  >
-                    <td className="px-5 py-4 text-sm">
-                      <p className="text-gray-900 whitespace-no-wrap">{application.id}</p>
-                    </td>
-                    <td className="px-5 py-4 text-sm">
-                      <p className="text-blue-700 whitespace-no-wrap font-medium">{application.jobTitle}</p>
-                    </td>
-                    <td className="px-5 py-4 text-sm">
-                      <p className="text-gray-800 whitespace-no-wrap">{application.company}</p>
-                    </td>
-                    <td className="px-5 py-4 text-sm">
-                      <span
-                        className={`relative inline-block px-3 py-1 font-semibold leading-tight rounded-full ${statusColors[application.status].text} ${statusColors[application.status].bg}`}
-                      >
-                        <span className="relative">{application.status.charAt(0).toUpperCase() + application.status.slice(1)}</span>
-                      </span>
-                    </td>
-                    <td className="px-5 py-4 text-sm">
-                      <p className="text-gray-800 whitespace-no-wrap">{application.date}</p>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      )}
-
-      {/* Application Details Modal */}
-      {selectedApplication && (
-        <ApplicationDetailsModal
-          application={selectedApplication}
-          onClose={() => setSelectedApplication(null)}
-        />
       )}
     </div>
   );

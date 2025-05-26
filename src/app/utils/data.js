@@ -34,7 +34,13 @@ export function mapEmailToApplication(email) {
 // Function to fetch and process applications
 export async function fetchApplications() {
   try {
-    const response = await fetch('/api/get-emails');
+    const response = await fetch('/api/get-emails', {
+      cache: 'no-store',
+      headers: {
+        'Cache-Control': 'no-cache',
+        'Pragma': 'no-cache'
+      }
+    });
     if (!response.ok) {
       throw new Error('Failed to fetch applications');
     }

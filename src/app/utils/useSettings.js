@@ -1,5 +1,7 @@
 "use client";
-import { useState, useEffect } from 'react';
+import { useState, useEffect, createContext, useContext } from 'react';
+
+const SettingsContext = createContext();
 
 const defaultSettings = {
   parsing: {
@@ -42,7 +44,7 @@ const defaultSettings = {
   },
 };
 
-export function useSettings() {
+export function SettingsProvider({ children }) {
   const [settings, setSettings] = useState(defaultSettings);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -101,5 +103,17 @@ export function useSettings() {
     }
   };
 
-  return { settings, setSettings, saveSettings, defaultSettings, isLoading, error };
+  return (
+    <SettingsContext.Provider value={{ settings, setSettings, saveSettings, defaultSettings, isLoading, error }}>
+      {children}
+    </SettingsContext.Provider>
+  );
+}
+
+export function useSettings() {
+  const context = useContext(SettingsContext);
+  if (!context) {
+    throw new Error('useSettings must be used within a SettingsProvider');
+  }
+  return context;
 } 

@@ -1,11 +1,11 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import { useNotifications } from '../context/NotificationContext';
+import { useNotification } from '../context/NotificationContext';
 import { MdNotifications } from 'react-icons/md';
 
 export default function NotificationIcon() {
-  const { notifications, unreadCount, handleNotificationClick } = useNotifications();
+  const { notifications, unreadCount, handleNotificationClick } = useNotification();
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef(null);
 
