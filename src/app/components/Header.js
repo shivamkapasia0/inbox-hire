@@ -25,7 +25,12 @@ export default function Header({ currentPage }) {
       {/* Left section: App Name */}
       <div className="flex items-center">
         <MdOutlineCases className="w-8 h-8 mr-3 text-gray-900 dark:text-gray-100" />
-        <span className="text-3xl font-bold text-gray-900 dark:text-gray-800">Inbox Hire</span>
+        <div className="flex flex-col">
+          <span className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">Inbox Hire</span>
+          <span className="text-xs font-medium mt-[-4px]">
+            powered by <span className="text-blue-600 dark:text-blue-400 font-semibold">Postmark</span>
+          </span>
+        </div>
       </div>
 
       {/* Center section: Menu Icons */}
