@@ -15,7 +15,7 @@ export function mapEmailToApplication(email) {
 
   return {
     id: email.id,
-    position: email.subject.split('-')[0]?.trim() || 'Unknown Position',
+    position: email.jobTitle || email.subject.split('-')[0]?.trim() || 'Unknown Position',
     company: domainMatch ? fromEmail.split('@')[1]?.split('.')[0] || 'Unknown Company' : 'Unknown Company',
     name: email.from,
     lastUpdate: email.date,
@@ -27,7 +27,9 @@ export function mapEmailToApplication(email) {
     subject: email.subject,
     text: email.text,
     html: email.html,
-    date: email.date
+    date: email.date,
+    jobTitle: email.jobTitle,
+    type: email.type
   };
 }
 
@@ -146,10 +148,10 @@ export async function getApplicationTypeDistribution() {
   try {
     const applications = await fetchApplications();
     const distribution = {
-      fullTime: applications.filter(app => app.subject.toLowerCase().includes('full time')).length,
-      partTime: applications.filter(app => app.subject.toLowerCase().includes('part time')).length,
-      contract: applications.filter(app => app.subject.toLowerCase().includes('contract')).length,
-      internship: applications.filter(app => app.subject.toLowerCase().includes('internship')).length,
+      fullTime: applications.filter(app => app.type === 'fullTime').length,
+      partTime: applications.filter(app => app.type === 'partTime').length,
+      contract: applications.filter(app => app.type === 'Contract').length,
+      internship: applications.filter(app => app.type === 'Internship').length,
     };
     return distribution;
   } catch (error) {
