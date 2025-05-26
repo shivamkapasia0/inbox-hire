@@ -1,112 +1,156 @@
 'use client';
 
-import { useDataStore } from '../utils/DataStore';
+import React, { useState, useEffect } from 'react';
+import { Line } from 'react-chartjs-2';
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend,
+} from 'chart.js';
+import { getImpressionsData } from '../utils/data';
+
+// Register ChartJS components
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend
+);
 
 export default function ImpressionsChart() {
-  const { data } = useDataStore();
-  const { impressionFunnelData } = data;
+  const [impressionsData, setImpressionsData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  // Define thresholds for bar width
-  const valueInsideThresholdPercentage = 20; // Value stays inside if bar width > this
-  const labelColorThresholdPercentage = 5; // Label text color changes to dark if bar width < this
+  useEffect(() => {
+    const loadImpressionsData = async () => {
+      try {
+        const data = await getImpressionsData();
+        setImpressionsData(data);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadImpressionsData();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="animate-pulse">
+        <div className="h-64 bg-gray-200 rounded"></div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
+        {error}
+      </div>
+    );
+  }
+
+  const chartData = {
+    labels: impressionsData.map(item => {
+      const date = new Date(item.date);
+      return date.toLocaleDateString('en-US', { weekday: 'short' });
+    }),
+    datasets: [
+      {
+        label: 'Applications',
+        data: impressionsData.map(item => item.applications),
+        borderColor: 'rgb(59, 130, 246)', // blue-500
+        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+        tension: 0.4,
+        fill: true,
+      },
+      {
+        label: 'Interviews',
+        data: impressionsData.map(item => item.interviews),
+        borderColor: 'rgb(16, 185, 129)', // green-500
+        backgroundColor: 'rgba(16, 185, 129, 0.1)',
+        tension: 0.4,
+        fill: true,
+      },
+      {
+        label: 'Offers',
+        data: impressionsData.map(item => item.offers),
+        borderColor: 'rgb(245, 158, 11)', // amber-500
+        backgroundColor: 'rgba(245, 158, 11, 0.1)',
+        tension: 0.4,
+        fill: true,
+      },
+    ],
+  };
+
+  const options = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        position: 'top',
+        labels: {
+          usePointStyle: true,
+          padding: 20,
+        },
+      },
+      tooltip: {
+        mode: 'index',
+        intersect: false,
+        backgroundColor: 'rgba(255, 255, 255, 0.9)',
+        titleColor: '#1F2937',
+        bodyColor: '#4B5563',
+        borderColor: '#E5E7EB',
+        borderWidth: 1,
+        padding: 12,
+        boxPadding: 6,
+        usePointStyle: true,
+        callbacks: {
+          label: function(context) {
+            return `${context.dataset.label}: ${context.parsed.y}`;
+          }
+        }
+      },
+    },
+    scales: {
+      y: {
+        beginAtZero: true,
+        grid: {
+          color: 'rgba(0, 0, 0, 0.1)',
+        },
+        ticks: {
+          callback: function(value) {
+            return value.toLocaleString();
+          }
+        }
+      },
+      x: {
+        grid: {
+          display: false,
+        },
+      },
+    },
+    interaction: {
+      mode: 'nearest',
+      axis: 'x',
+      intersect: false
+    },
+  };
 
   return (
-    <div className="p-4 rounded-lg shadow-lg" style={{
-      background: 'linear-gradient(135deg, rgba(251, 243, 225, 0.9) 0%, rgba(249, 222, 219, 0.9) 50%, rgba(212, 236, 230, 0.9) 100%)',
-      backdropFilter: 'blur(10px)',
-    }}>
-      {/* Chart Title */}
-      {/* <h3 className="text-lg font-semibold text-gray-800 mb-4">Impressions Funnel</h3> */}
-
-      <div className="space-y-4">
-        {impressionFunnelData.stages.map((stage, index) => {
-          const barWidthPercentage = (stage.value / impressionFunnelData.stages[0].value) * 100;
-          const isValueInside = barWidthPercentage > valueInsideThresholdPercentage;
-          const labelTextColorClass = barWidthPercentage > labelColorThresholdPercentage ? 'text-white' : 'text-gray-800';
-          const valueTextColorClass = isValueInside ? 'text-white' : 'text-gray-800';
-
-          return (
-            <div key={stage.label} className="flex items-center w-full" style={{ minHeight: '3.5rem' }}>
-              {/* Stage Label */}
-              <div className="flex items-center pr-4" style={{ minWidth: '150px', maxWidth: '200px' }}>
-                 <span className={`font-medium text-sm text-gray-800`}> 
-                   {stage.label}
-                 </span>
-              </div>
-              
-              {/* Bar and Value/Rate Container - takes remaining space */}
-              <div className="flex items-center flex-grow">
-                {/* Stage Bar */}
-                <div className="h-14 rounded-lg transition-all duration-300 hover:scale-[1.02] flex items-center relative" 
-                  style={{
-                    width: `${barWidthPercentage}%`,
-                    backgroundColor: stage.color,
-                    opacity: 0.9,
-                    minWidth: '10px',
-                  }}>
-                </div>
-
-                {/* Container for Value and Conversion Rate - positioned directly after the bar within this flex container */}
-                <div className="flex items-center ml-2 flex-shrink-0">
-                  {/* Stage Value */}
-                  <div 
-                    className="font-bold text-gray-800"
-                  >
-                    {stage.value}
-                  </div>
-
-                  {/* Conversion Rate and Arrow */}
-                  {index < impressionFunnelData.stages.length - 1 && (
-                    <div className="flex items-center ml-2"> 
-                      <span className="text-xs text-gray-500">
-                        {impressionFunnelData.conversionRates[
-                          index === 0 ? 'replyRate' : 
-                          index === 1 ? 'interviewRate' : 'offerRate'
-                        ]}%
-                      </span>
-                      <svg 
-                        className="w-3 h-3 text-gray-400 ml-1" 
-                        fill="none" 
-                        stroke="currentColor" 
-                        viewBox="0 0 24 24"
-                      >
-                        <path 
-                          strokeLinecap="round" 
-                          strokeLinejoin="round" 
-                          strokeWidth={2} 
-                          d="M19 14l-7 7m0 0l-7-7m7 7V3" 
-                        />
-                      </svg>
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
-          );
-        })}
-      </div>
-
-      {/* Summary Stats */}
-      <div className="mt-6 flex justify-center space-x-8">
-        <div className="text-center">
-          <p className="text-sm font-medium text-emerald-600">
-            {impressionFunnelData.conversionRates.replyRate}%
-          </p>
-          <p className="text-xs text-gray-500">Reply</p>
-        </div>
-        <div className="text-center">
-          <p className="text-sm font-medium text-amber-600">
-            {impressionFunnelData.conversionRates.interviewRate}%
-          </p>
-          <p className="text-xs text-gray-500">Interview</p>
-        </div>
-        <div className="text-center">
-          <p className="text-sm font-medium text-pink-600">
-            {impressionFunnelData.conversionRates.offerRate}%
-          </p>
-          <p className="text-xs text-gray-500">Offer</p>
-        </div>
-      </div>
+    <div className="h-64">
+      <Line data={chartData} options={options} />
     </div>
   );
 } 

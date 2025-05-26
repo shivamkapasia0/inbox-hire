@@ -1,14 +1,14 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import {
   CheckCircleIcon,
   XCircleIcon,
   DocumentTextIcon,
   ClockIcon,
-  MagnifyingGlassIcon,
 } from '@heroicons/react/24/outline';
+import { getSummaryStats } from '../utils/data';
 
 const SummaryCard = ({ title, value, trend, trendType, gradientClasses, icon: Icon, iconColor, onClick }) => {
   return (
@@ -37,36 +37,67 @@ const SummaryCard = ({ title, value, trend, trendType, gradientClasses, icon: Ic
   );
 };
 
-export default function SummaryCards({ summaryStats }) {
+export default function SummaryCards() {
   const router = useRouter();
+  const [summaryData, setSummaryData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  // Provide default values to prevent errors
-  const safeStats = {
-    totalApplied: summaryStats?.totalApplied ?? 0,
-    interviewScheduled: summaryStats?.interviewScheduled ?? 0,
-    noResponse: summaryStats?.noResponse ?? 0,
-    notSelected: summaryStats?.notSelected ?? 0,
-    inProgress: summaryStats?.inProgress ?? 0,
-  };
+  useEffect(() => {
+    const loadSummaryStats = async () => {
+      try {
+        const data = await getSummaryStats();
+        setSummaryData(data);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadSummaryStats();
+  }, []);
 
   const handleCardClick = (status) => {
     try {
-      // Encode the status parameter to handle spaces and special characters
       const encodedStatus = encodeURIComponent(status);
-      // Navigate to the applications page with the status filter
       router.push(`/applications?status=${encodedStatus}`);
     } catch (error) {
       console.error('Navigation error:', error);
     }
   };
 
+  if (loading) {
+    return (
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+        {[1, 2, 3, 4, 5].map((i) => (
+          <div key={i} className="p-6 rounded-2xl shadow-lg bg-gray-100 animate-pulse">
+            <div className="h-4 bg-gray-200 rounded w-1/2 mb-4"></div>
+            <div className="h-8 bg-gray-200 rounded w-3/4 mb-4"></div>
+            <div className="h-4 bg-gray-200 rounded w-1/3"></div>
+          </div>
+        ))}
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
+        {error}
+      </div>
+    );
+  }
+
+  const { stats, trends } = summaryData;
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
       <SummaryCard
         title="Total Jobs Applied"
-        value={safeStats.totalApplied.toString()}
-        trend="+15%"
-        trendType="up"
+        value={stats.totalApplied.toString()}
+        trend={trends.totalApplied}
+        trendType={trends.totalApplied.startsWith('+') ? 'up' : 'down'}
         gradientClasses="bg-gradient-to-r from-blue-100 to-blue-300 dark:from-blue-700 dark:to-blue-900"
         icon={DocumentTextIcon}
         iconColor="text-blue-600 dark:text-blue-300"
@@ -74,29 +105,29 @@ export default function SummaryCards({ summaryStats }) {
       />
       <SummaryCard
         title="Interview Scheduled"
-        value={safeStats.interviewScheduled.toString()}
-        trend="+5%"
-        trendType="up"
+        value={stats.interviewScheduled.toString()}
+        trend={trends.interviewScheduled}
+        trendType={trends.interviewScheduled.startsWith('+') ? 'up' : 'down'}
         gradientClasses="bg-gradient-to-r from-green-100 to-green-300 dark:from-green-700 dark:to-green-900"
         icon={CheckCircleIcon}
         iconColor="text-green-600 dark:text-green-300"
-        onClick={() => handleCardClick('Interview Scheduled')}
+        onClick={() => handleCardClick('Interview')}
       />
       <SummaryCard
         title="No Response"
-        value={safeStats.noResponse.toString()}
-        trend="-10%"
-        trendType="down"
+        value={stats.noResponse.toString()}
+        trend={trends.noResponse}
+        trendType={trends.noResponse.startsWith('+') ? 'up' : 'down'}
         gradientClasses="bg-gradient-to-r from-gray-100 to-gray-300 dark:from-gray-700 dark:to-gray-900"
         icon={XCircleIcon}
         iconColor="text-gray-600 dark:text-gray-300"
-        onClick={() => handleCardClick('No Response')}
+        onClick={() => handleCardClick('Other')}
       />
       <SummaryCard
         title="Not Selected"
-        value={safeStats.notSelected.toString()}
-        trend="-2%"
-        trendType="down"
+        value={stats.notSelected.toString()}
+        trend={trends.notSelected}
+        trendType={trends.notSelected.startsWith('+') ? 'up' : 'down'}
         gradientClasses="bg-gradient-to-r from-red-100 to-red-300 dark:from-red-700 dark:to-red-900"
         icon={XCircleIcon}
         iconColor="text-red-600 dark:text-red-300"
@@ -104,13 +135,13 @@ export default function SummaryCards({ summaryStats }) {
       />
       <SummaryCard
         title="In Progress"
-        value={safeStats.inProgress.toString()}
-        trend="+8%"
-        trendType="up"
+        value={stats.inProgress.toString()}
+        trend={trends.inProgress}
+        trendType={trends.inProgress.startsWith('+') ? 'up' : 'down'}
         gradientClasses="bg-gradient-to-r from-amber-100 to-amber-300 dark:from-amber-700 dark:to-amber-900"
         icon={ClockIcon}
         iconColor="text-amber-600 dark:text-amber-300"
-        onClick={() => handleCardClick('In Progress')}
+        onClick={() => handleCardClick('Offer')}
       />
     </div>
   );

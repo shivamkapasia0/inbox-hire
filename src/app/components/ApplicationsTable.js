@@ -1,63 +1,24 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { getRecentApplications } from '../utils/data';
 import ApplicationDetailsModal from './ApplicationDetailsModal';
 
-// Placeholder data - replace with actual data fetching later
-const applications = [
-  { 
-    id: 1, 
-    jobTitle: 'Software Engineer', 
-    company: 'Tech Solutions', 
-    status: 'Offer Letters', 
-    date: '2024-05-15',
-    position: 'Software Engineer',
-    statusBadge: 'Approve',
-    lastUpdate: '2024-05-15',
-    source: 'LinkedIn',
-    contactEmail: 'hr@techsolutions.com'
-  },
-  { 
-    id: 2, 
-    jobTitle: 'Data Analyst', 
-    company: 'Data Insights', 
-    status: 'Interview Scheduled', 
-    date: '2024-05-14',
-    position: 'Data Analyst',
-    statusBadge: 'Pending',
-    lastUpdate: '2024-05-14',
-    source: 'Company Website',
-    contactEmail: 'careers@datainsights.com'
-  },
-  { id: 3, jobTitle: 'Product Manager', company: 'Innovate Labs', status: 'No Response', date: '2024-05-12' },
-  { id: 4, jobTitle: 'UX Researcher', company: 'Creative Minds', status: 'Offer Letters', date: '2024-05-10' },
-  { id: 5, jobTitle: 'DevOps Engineer', company: 'Cloud Services', status: 'Rejected', date: '2024-05-08' },
-  { id: 6, jobTitle: 'Marketing Specialist', company: 'Growth Agency', status: 'No Response', date: '2024-05-05' },
-  { id: 7, jobTitle: 'Sales Representative', company: 'BizConnect', status: 'Interview Scheduled', date: '2024-05-03' },
-   { id: 8, jobTitle: 'HR Coordinator', company: 'People Solutions', status: 'Offer Letters', date: '2024-05-01' },
-   { id: 9, jobTitle: 'System Administrator', company: 'IT Services', status: 'Rejected', date: '2024-04-28' },
-   { id: 10, jobTitle: 'Business Analyst', company: 'Consulting Group', status: 'No Response', date: '2024-04-25' },
-   { id: 11, jobTitle: 'Frontend Developer', company: 'Web Builders', status: 'Interview Scheduled', date: '2024-04-20' },
-   { id: 12, jobTitle: 'Backend Developer', company: 'Server Side', status: 'Offer Letters', date: '2024-04-18' },
-   { id: 13, jobTitle: 'Mobile Developer', company: 'App Solutions', status: 'Rejected', date: '2024-04-16' },
-   { id: 14, jobTitle: 'Data Scientist', company: 'AI Labs', status: 'Interview Scheduled', date: '2024-04-14' },
-];
-
 const statusColors = {
-  'Offer Letters': {
+  'offer': {
     text: 'text-green-900',
     bg: 'bg-green-200'
   },
-  'Rejected': {
+  'rejected': {
     text: 'text-red-900',
     bg: 'bg-red-200'
   },
-  'Interview Scheduled': {
+  'interview': {
     text: 'text-blue-900',
     bg: 'bg-blue-200'
   },
-  'No Response': {
+  'other': {
     text: 'text-yellow-900',
     bg: 'bg-yellow-200'
   },
@@ -66,26 +27,53 @@ const statusColors = {
 const ITEMS_PER_PAGE = 5;
 
 export default function ApplicationsTable() {
+  const [applications, setApplications] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const router = useRouter();
   const [filter, setFilter] = useState('all');
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedApplication, setSelectedApplication] = useState(null);
 
-  const filteredApplications = useMemo(() => {
-    const filtered = applications.filter(app => {
-      if (filter === 'all') return true;
-      const filterKey = filter.replace(' ', '-').toLowerCase();
-      const statusKey = app.status.replace(' ', '-').toLowerCase();
-      return filterKey === statusKey;
-    });
-    // Always include 'Rejected' in the filter options, even if not explicitly listed in `filters` array
-     const rejectedFilterKey = 'rejected';
-    if (filter === rejectedFilterKey) {
-        return applications.filter(app => app.status.replace(' ', '-').toLowerCase() === rejectedFilterKey);
-    }
-    return filtered;
-  }, [filter]);
+  useEffect(() => {
+    const loadApplications = async () => {
+      try {
+        const data = await getRecentApplications();
+        setApplications(data);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
 
+    loadApplications();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="animate-pulse space-y-4">
+        {[1, 2, 3].map((i) => (
+          <div key={i} className="h-16 bg-gray-200 rounded"></div>
+        ))}
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
+        {error}
+      </div>
+    );
+  }
+
+  const filteredApplications = applications.filter(app => {
+    if (filter === 'all') return true;
+    const filterKey = filter.replace(' ', '-').toLowerCase();
+    const statusKey = app.status.replace(' ', '-').toLowerCase();
+    return filterKey === statusKey;
+  });
 
   const totalPages = Math.ceil(filteredApplications.length / ITEMS_PER_PAGE);
   const currentApplications = filteredApplications.slice(
@@ -93,7 +81,7 @@ export default function ApplicationsTable() {
     currentPage * ITEMS_PER_PAGE
   );
 
-  const filters = ['All', 'Interview Scheduled', 'No Response', 'Offer Letters', 'Rejected'];
+  const filters = ['all', 'interview', 'other', 'offer', 'rejected'];
 
   const handlePageChange = (page) => {
     if (page >= 1 && page <= totalPages) {
@@ -102,7 +90,7 @@ export default function ApplicationsTable() {
   };
 
   const handleRowClick = (applicationId) => {
-    router.push(`/applications?id=${applicationId}`);
+    router.push(`/applications/${applicationId}`);
   };
 
   return (
@@ -201,7 +189,7 @@ export default function ApplicationsTable() {
                     <span
                       className={`relative inline-block px-3 py-1 font-semibold leading-tight rounded-full ${statusColors[application.status].text} ${statusColors[application.status].bg}`}
                     >
-                      <span className="relative">{application.status}</span>
+                      <span className="relative">{application.status.charAt(0).toUpperCase() + application.status.slice(1)}</span>
                     </span>
                   </td>
                   <td className="px-5 py-4 text-sm">

@@ -12,6 +12,7 @@ import ImpressionsChart from './components/ImpressionsChart';
 import SettingsPage from './components/SettingsPage';
 import ApplicationsPage from './components/ApplicationsPage';
 import { MdOutlineDocumentScanner } from 'react-icons/md';
+import ApplicationSourceDistribution from './components/ApplicationSourceDistribution';
 
 export default function Home() {
   const [currentPage, setCurrentPage] = useState('home');
@@ -34,17 +35,24 @@ export default function Home() {
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mt-4">
-            <div className="lg:col-span-1">
+            {/* Left Column: Application Type and Application Sources */}
+            <div className="lg:col-span-1 space-y-4">
               <DashboardSection title="Application Type">
                 <WorkingType />
               </DashboardSection>
+
+              <DashboardSection title="Application Sources">
+                <ApplicationSourceDistribution />
+              </DashboardSection>
             </div>
+
+            {/* Right Column: Recent Applications */}
             <div className="lg:col-span-2">
               <DashboardSection 
                 title={
                   <div className="flex items-center gap-2">
                     <MdOutlineDocumentScanner className="w-6 h-6" />
-                    <span>Applications</span>
+                    <span>Recent Applications</span>
                   </div>
                 }
                 variant="applications"
@@ -62,6 +70,7 @@ export default function Home() {
               <ImpressionsChart />
             </DashboardSection>
           </div>
+
         </main>
       )}
     </div>

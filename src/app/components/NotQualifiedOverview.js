@@ -1,104 +1,86 @@
 'use client';
 
-import { Line } from 'react-chartjs-2';
-import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  Title,
-  Tooltip,
-  Legend,
-} from 'chart.js';
-import { useDataStore } from '../utils/DataStore';
-
-// Register ChartJS components
-ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  Title,
-  Tooltip,
-  Legend
-);
+import React, { useState, useEffect } from 'react';
+import { getJobsAppliedOverview } from '../utils/data';
 
 export default function NotQualifiedOverview() {
-  const { data } = useDataStore();
-  const { jobsAppliedData } = data;
+  const [overview, setOverview] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  const chartData = {
-    labels: jobsAppliedData.labels,
-    datasets: [
-      {
-        label: 'Total Jobs Applied',
-        data: jobsAppliedData.datasets[0].data,
-        borderColor: 'rgb(59, 130, 246)', // blue-500
-        backgroundColor: 'rgba(59, 130, 246, 0.1)',
-        tension: 0.4,
-        fill: true,
-      },
-    ],
-  };
+  useEffect(() => {
+    const loadOverview = async () => {
+      try {
+        const data = await getJobsAppliedOverview();
+        setOverview(data);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  const options = {
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: {
-      legend: {
-        display: false,
-      },
-      tooltip: {
-        mode: 'index',
-        intersect: false,
-        callbacks: {
-          label: function(context) {
-            return `Jobs Applied: ${context.parsed.y}`;
-          }
-        }
-      },
-    },
-    scales: {
-      y: {
-        beginAtZero: true,
-        grid: {
-          color: 'rgba(0, 0, 0, 0.1)',
-        },
-        ticks: {
-          callback: function(value) {
-            return value.toLocaleString();
-          }
-        }
-      },
-      x: {
-        grid: {
-          display: false,
-        },
-      },
-    },
-  };
+    loadOverview();
+  }, []);
 
-  // Calculate the total and percentage change
-  const total = jobsAppliedData.datasets[0].data.reduce((a, b) => a + b, 0);
-  const lastMonth = jobsAppliedData.datasets[0].data[jobsAppliedData.datasets[0].data.length - 2];
-  const currentMonth = jobsAppliedData.datasets[0].data[jobsAppliedData.datasets[0].data.length - 1];
-  const percentageChange = ((currentMonth - lastMonth) / lastMonth) * 100;
+  if (loading) {
+    return (
+      <div className="animate-pulse space-y-4">
+        {[1, 2].map((i) => (
+          <div key={i} className="h-24 bg-gray-200 rounded"></div>
+        ))}
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
+        {error}
+      </div>
+    );
+  }
+
+  const { lastMonth, thisMonth } = overview;
 
   return (
-    <div className="p-4 rounded-lg shadow-lg" style={{
-      background: 'linear-gradient(135deg, rgba(251, 243, 225, 0.9) 0%, rgba(249, 222, 219, 0.9) 50%, rgba(212, 236, 230, 0.9) 100%)',
-      backdropFilter: 'blur(10px)',
-    }}>
-      {/* <h3 className="text-lg font-semibold text-gray-800 mb-4">Total Jobs Applied</h3> */}
-      <div className="w-full h-64">
-        <Line data={chartData} options={options} />
+    <div className="space-y-6">
+      {/* This Month */}
+      <div>
+        <h3 className="text-sm font-medium text-gray-700 mb-3">This Month</h3>
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+          <div className="flex justify-between items-center mb-2">
+            <span className="text-sm text-gray-600">Total Applications</span>
+            <span className="text-sm font-medium text-gray-900">{thisMonth.total}</span>
+          </div>
+          <div className="flex justify-between items-center mb-2">
+            <span className="text-sm text-gray-600">Qualified</span>
+            <span className="text-sm font-medium text-green-600">{thisMonth.qualified}</span>
+          </div>
+          <div className="flex justify-between items-center">
+            <span className="text-sm text-gray-600">Not Qualified</span>
+            <span className="text-sm font-medium text-red-600">{thisMonth.notQualified}</span>
+          </div>
+        </div>
       </div>
-      <div className="mt-4 text-center">
-        <p className="text-lg font-semibold">{total.toLocaleString()}</p>
-        <p className={`text-sm ${percentageChange >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-          {percentageChange >= 0 ? '↑' : '↓'} {Math.abs(percentageChange).toFixed(1)}% last month
-        </p>
+
+      {/* Last Month */}
+      <div>
+        <h3 className="text-sm font-medium text-gray-700 mb-3">Last Month</h3>
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+          <div className="flex justify-between items-center mb-2">
+            <span className="text-sm text-gray-600">Total Applications</span>
+            <span className="text-sm font-medium text-gray-900">{lastMonth.total}</span>
+          </div>
+          <div className="flex justify-between items-center mb-2">
+            <span className="text-sm text-gray-600">Qualified</span>
+            <span className="text-sm font-medium text-green-600">{lastMonth.qualified}</span>
+          </div>
+          <div className="flex justify-between items-center">
+            <span className="text-sm text-gray-600">Not Qualified</span>
+            <span className="text-sm font-medium text-red-600">{lastMonth.notQualified}</span>
+          </div>
+        </div>
       </div>
     </div>
   );

@@ -1,9 +1,9 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { getApplicationTypeDistribution } from '../utils/data';
+import { getApplicationSourceDistribution } from '../utils/data';
 
-export default function WorkingType() {
+export default function ApplicationSourceDistribution() {
   const [distribution, setDistribution] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -11,7 +11,7 @@ export default function WorkingType() {
   useEffect(() => {
     const loadDistribution = async () => {
       try {
-        const data = await getApplicationTypeDistribution();
+        const data = await getApplicationSourceDistribution();
         setDistribution(data);
       } catch (err) {
         setError(err.message);
@@ -45,22 +45,16 @@ export default function WorkingType() {
 
   return (
     <div className="space-y-4">
-      {Object.entries(distribution).map(([type, count]) => {
+      <h3 className="text-lg font-semibold text-gray-800 mb-4">Application Sources</h3>
+      {Object.entries(distribution).map(([source, count]) => {
         const percentage = total > 0 ? Math.round((count / total) * 100) : 0;
         return (
-          <div key={type} className="flex items-center justify-between">
+          <div key={source} className="flex items-center justify-between">
             <div className="flex items-center">
-              <div className={`w-3 h-3 rounded-full ${
-                type === 'fullTime' ? 'bg-blue-500' :
-                type === 'partTime' ? 'bg-green-500' :
-                type === 'contract' ? 'bg-purple-500' :
-                'bg-yellow-500'
-              }`} />
+              {/* You might want to add different colored dots or icons based on the source */}
+              <div className="w-3 h-3 rounded-full bg-blue-500" /> 
               <span className="ml-2 text-sm font-medium text-gray-700">
-                {type === 'fullTime' ? 'Full Time' :
-                 type === 'partTime' ? 'Part Time' :
-                 type === 'contract' ? 'Contract' :
-                 'Internship'}
+                {source}
               </span>
             </div>
             <div className="flex items-center">
