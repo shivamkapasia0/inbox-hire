@@ -2,16 +2,16 @@
 import { useState } from 'react';
 
 const defaultSettings = {
-  postmark: {
-    inboundEmail: '',
-    webhookUrl: '',
-    serverToken: '',
-  },
   parsing: {
-    rejectionKeywords: ['unfortunately', 'not selected'],
-    interviewKeywords: ['interview', 'calendar invite'],
-    offerKeywords: ['offer', 'position', 'congrats'],
+    rejectionKeywords: ['unfortunately', 'not selected', 'regret to inform', 'not moving forward', 'not a fit'],
+    interviewKeywords: ['interview', 'calendar invite', 'schedule a call', 'technical discussion', 'screening'],
+    offerKeywords: ['offer', 'position', 'congrats', 'welcome aboard', 'joining', 'compensation'],
+    notSelectedKeywords: ['not selected', 'other candidates', 'better fit', 'not proceeding'],
+    noResponseKeywords: ['following up', 'checking in', 'haven\'t heard back'],
+    inProgressKeywords: ['application received', 'under review', 'processing', 'screening'],
+    noResponseDays: 7,
     enableCustom: false,
+    customKeywords: [],
   },
   dashboard: {
     groupBy: 'Status',
@@ -19,21 +19,42 @@ const defaultSettings = {
     showCharts: true,
     theme: 'System',
   },
+  api: {
+    geminiKey: '',
+  },
 };
 
 export function useSettings() {
   const [settings, setSettings] = useState(() => {
     if (typeof window !== 'undefined') {
       const saved = localStorage.getItem('appSettings');
-      return saved ? JSON.parse(saved) : defaultSettings;
+      const parsedSettings = saved ? JSON.parse(saved) : defaultSettings;
+      // Ensure api section exists
+      return {
+        ...defaultSettings,
+        ...parsedSettings,
+        api: {
+          ...defaultSettings.api,
+          ...(parsedSettings.api || {}),
+        },
+      };
     }
     return defaultSettings;
   });
 
   const saveSettings = (newSettings) => {
-    setSettings(newSettings);
+    // Ensure api section exists before saving
+    const settingsToSave = {
+      ...defaultSettings,
+      ...newSettings,
+      api: {
+        ...defaultSettings.api,
+        ...(newSettings.api || {}),
+      },
+    };
+    setSettings(settingsToSave);
     if (typeof window !== 'undefined') {
-      localStorage.setItem('appSettings', JSON.stringify(newSettings));
+      localStorage.setItem('appSettings', JSON.stringify(settingsToSave));
     }
   };
 

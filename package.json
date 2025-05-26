@@ -11,6 +11,7 @@
   "dependencies": {
     "@heroicons/react": "^2.2.0",
     "chart.js": "^4.4.9",
+    "lucide-react": "^0.511.0",
     "next": "15.1.8",
     "raw-body": "^3.0.0",
     "react": "^19.0.0",
