@@ -18,6 +18,24 @@ const defaultSettings = {
     showRejected: true,
     showCharts: true,
     theme: 'System',
+    defaultView: 'list',
+    itemsPerPage: 10,
+    sortOrder: 'newest',
+    showSections: {
+      summaryCards: true,
+      workingType: true,
+      applicationSources: true,
+      recentApplications: true,
+      jobsOverview: true,
+      impressions: true
+    },
+    dateFormat: 'MMM DD, YYYY',
+    timeZone: 'local',
+    compactMode: false,
+    showTrends: true,
+    showPercentages: true,
+    showEmptyStates: true,
+    refreshInterval: 5, // minutes
   },
   api: {
     geminiKey: '',
