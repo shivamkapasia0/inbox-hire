@@ -1,0 +1,73 @@
+{
+  "parsing": {
+    "rejectionKeywords": [
+      "unfortunately",
+      "not selected",
+      "regret to inform",
+      "not moving forward",
+      "not a fit"
+    ],
+    "interviewKeywords": [
+      "interview",
+      "calendar invite",
+      "schedule a call",
+      "technical discussion",
+      "screening"
+    ],
+    "offerKeywords": [
+      "offer",
+      "position",
+      "congrats",
+      "welcome aboard",
+      "joining",
+      "compensation"
+    ],
+    "notSelectedKeywords": [
+      "not selected",
+      "other candidates",
+      "better fit",
+      "not proceeding"
+    ],
+    "noResponseKeywords": [
+      "following up",
+      "checking in",
+      "haven't heard back"
+    ],
+    "inProgressKeywords": [
+      "application received",
+      "under review",
+      "processing",
+      "screeningsss"
+    ],
+    "noResponseDays": 7,
+    "enableCustom": false,
+    "customKeywords": []
+  },
+  "dashboard": {
+    "groupBy": "Status",
+    "showRejected": true,
+    "showCharts": true,
+    "theme": "System",
+    "defaultView": "list",
+    "itemsPerPage": 10,
+    "sortOrder": "newest",
+    "showSections": {
+      "summaryCards": true,
+      "workingType": true,
+      "applicationSources": true,
+      "recentApplications": true,
+      "jobsOverview": true,
+      "impressions": true
+    },
+    "dateFormat": "MMM DD, YYYY",
+    "timeZone": "local",
+    "compactMode": false,
+    "showTrends": true,
+    "showPercentages": false,
+    "showEmptyStates": false,
+    "refreshInterval": 5
+  },
+  "api": {
+    "geminiKey": ""
+  }
+}

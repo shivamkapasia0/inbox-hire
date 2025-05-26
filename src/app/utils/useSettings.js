@@ -1,5 +1,5 @@
 "use client";
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 const defaultSettings = {
   parsing: {
@@ -43,38 +43,63 @@ const defaultSettings = {
 };
 
 export function useSettings() {
-  const [settings, setSettings] = useState(() => {
-    if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem('appSettings');
-      const parsedSettings = saved ? JSON.parse(saved) : defaultSettings;
-      // Ensure api section exists
-      return {
+  const [settings, setSettings] = useState(defaultSettings);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchSettings = async () => {
+      try {
+        const response = await fetch('/api/settings');
+        if (!response.ok) {
+          throw new Error('Failed to fetch settings');
+        }
+        const data = await response.json();
+        setSettings(data);
+      } catch (err) {
+        console.error('Error fetching settings:', err);
+        setError(err.message);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchSettings();
+  }, []);
+
+  const saveSettings = async (newSettings) => {
+    try {
+      // Ensure api section exists before saving
+      const settingsToSave = {
         ...defaultSettings,
-        ...parsedSettings,
+        ...newSettings,
         api: {
           ...defaultSettings.api,
-          ...(parsedSettings.api || {}),
+          ...(newSettings.api || {}),
         },
       };
-    }
-    return defaultSettings;
-  });
 
-  const saveSettings = (newSettings) => {
-    // Ensure api section exists before saving
-    const settingsToSave = {
-      ...defaultSettings,
-      ...newSettings,
-      api: {
-        ...defaultSettings.api,
-        ...(newSettings.api || {}),
-      },
-    };
-    setSettings(settingsToSave);
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('appSettings', JSON.stringify(settingsToSave));
+      const response = await fetch('/api/settings', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(settingsToSave),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to save settings');
+      }
+
+      const savedSettings = await response.json();
+      setSettings(savedSettings);
+      return savedSettings;
+    } catch (err) {
+      console.error('Error saving settings:', err);
+      setError(err.message);
+      throw err;
     }
   };
 
-  return { settings, setSettings, saveSettings, defaultSettings };
+  return { settings, setSettings, saveSettings, defaultSettings, isLoading, error };
 } 
