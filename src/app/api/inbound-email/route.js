@@ -283,7 +283,7 @@ export async function POST(request) {
     }
 
     // Prepare email object
-    const email = {
+    let email = {
       id: data.MessageID || Date.now().toString(),
       from: data.From,
       to: data.To,
@@ -300,7 +300,11 @@ export async function POST(request) {
     try {
       console.log('Attempting to categorize with Gemini...');
       console.log('Email data:', email);
-      email.status = await categorizeEmailWithGemini(email, settings);
+      const geminiResponse = await categorizeEmailWithGemini(email, settings);
+      email = {
+        ...email,
+        ...geminiResponse
+      };
       console.log('Email categorized using Gemini:', email.status);
     } catch (geminiError) {
       console.log('Falling back to custom categorization logic:', geminiError.message);

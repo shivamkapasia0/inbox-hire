@@ -12,16 +12,19 @@ export function mapEmailToApplication(email) {
   const fromEmail = email.from || '';
   const domainMatch = fromEmail.match(/@([^.]+)\./);
   const source = domainMatch ? domainMatch[1] : 'Unknown';
-
+  
+  // Ensure status is a string and has a default value
+  const status = String(email.status || 'other').toLowerCase();
+  
   return {
     id: email.id,
     position: email.jobTitle || email.subject.split('-')[0]?.trim() || 'Unknown Position',
-    company: domainMatch ? fromEmail.split('@')[1]?.split('.')[0] || 'Unknown Company' : 'Unknown Company',
+    company: email.company,// || domainMatch ? fromEmail.split('@')[1]?.split('.')[0] || 'Unknown Company' : 'Unknown Company',
     name: email.from,
     lastUpdate: email.date,
     source: source.charAt(0).toUpperCase() + source.slice(1), // Capitalize the first letter
-    status: email.status,
-    statusBadge: email.status.charAt(0).toUpperCase() + email.status.slice(1),
+    status: status,
+    statusBadge: status.charAt(0).toUpperCase() + status.slice(1),
     from: email.from,
     to: email.to,
     subject: email.subject,

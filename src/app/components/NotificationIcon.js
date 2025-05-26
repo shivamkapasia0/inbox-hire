@@ -5,7 +5,7 @@ import { useNotification } from '../context/NotificationContext';
 import { MdNotifications } from 'react-icons/md';
 
 export default function NotificationIcon() {
-  const { notifications, unreadCount, handleNotificationClick } = useNotification();
+  const { notifications, unreadCount, handleNotificationClick, markAllAsRead } = useNotification();
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef(null);
 
@@ -37,6 +37,16 @@ export default function NotificationIcon() {
 
       {isOpen && (
         <div className="absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-lg overflow-hidden z-50">
+          {unreadCount > 0 && (
+            <div className="px-4 py-2 border-b border-gray-200">
+              <button
+                onClick={() => markAllAsRead()}
+                className="w-full text-sm text-blue-600 hover:text-blue-800 font-medium"
+              >
+                Mark all as read
+              </button>
+            </div>
+          )}
           <div className="py-2">
             {notifications.length === 0 ? (
               <div className="px-4 py-2 text-sm text-gray-500">No notifications</div>

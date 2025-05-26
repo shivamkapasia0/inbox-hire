@@ -105,6 +105,9 @@ export default function Home() {
           </div>
         </main>
       )}
+      <footer className="text-center py-4 text-sm text-gray-600 dark:text-gray-400 border-t border-gray-200 dark:border-gray-700">
+        Powered by <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent font-semibold">Postmark</span> · Inspired by the <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent font-semibold">Dev.to</span> community · Made with <span className="inline-block animate-[heartbeat_1.5s_ease-in-out_infinite]">❤️</span>
+      </footer>
     </div>
   );
 }

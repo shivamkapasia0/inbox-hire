@@ -19,28 +19,30 @@ export async function categorizeEmailWithGemini(email, settings) {
     const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
 
     // Prepare the prompt
-    const prompt = `Analyze this email and provide the following information in JSON format:
+    const prompt = `Fill in this JSON structure based on the email content:
+
     {
-      "id": "auto-generated-timestamp",
-      "from": "sender email",
-      "to": "recipient email",
-      "subject": "email subject",
-      "text": "plain text content",
-      "html": "HTML content if available",
-      "date": "email date in RFC2822 format",
-      "status": "one of: applied, interview, offer, rejected, other",
-      "jobTitle": "position/job title if mentioned",
-      "type": "one of: fullTime, partTime, contract, internship",
-      "company": "company name if mentioned",
-      "location": "job location if mentioned",
-      "salary": "compensation details if mentioned",
-      "nextSteps": "action items or next steps if mentioned"
+      "id": "${Date.now()}",
+      "from": "${email.from}",
+      "to": "${email.to}",
+      "subject": "${email.subject}",
+      "text": "${email.text}",
+      "html": "${email.html || null}",
+      "date": "${email.date}",
+      "status": "rejected|interview|offer|other",
+      "jobTitle": "extract from subject or text",
+      "type": "fullTime|partTime|contract|internship",
+      "company": "extract from email domain or text",
+      "location": "extract from text",
+      "salary": "extract from text",
+      "nextSteps": "extract from text"
     }
 
-    Email Subject: ${email.subject}
-    Email Body: ${email.text}
-
-    Respond with a JSON object containing these fields. Use null for any information not found.`;
+    Rules for status:
+    - Use "rejected" if email indicates rejection
+    - Use "interview" if email is about scheduling/confirming interview
+    - Use "offer" if email contains job offer
+    - Use "other" for all other cases`;
 
     console.log('Sending request to Gemini...');
 
@@ -60,19 +62,62 @@ export async function categorizeEmailWithGemini(email, settings) {
         const response = await result.response;
         const responseText = response.text().trim();
         
+        // Clean the response text by removing markdown code block syntax
+        const cleanedResponse = responseText
+          .replace(/```json\n?/g, '')  // Remove opening ```json
+          .replace(/```\n?/g, '')      // Remove closing ```
+          .trim();                     // Remove any extra whitespace
+        
         // Parse the JSON response
         let parsedResponse;
         try {
-          parsedResponse = JSON.parse(responseText);
+          parsedResponse = JSON.parse(cleanedResponse);
+          console.log('Original Gemini response:', JSON.stringify(parsedResponse, null, 2));
+          
+          // Function to aggressively flatten nested JSON
+          const flattenJson = (obj) => {
+            const result = {};
+            
+            const flatten = (current, prefix = '') => {
+              Object.entries(current).forEach(([key, value]) => {
+                const newKey = prefix ? `${prefix}_${key}` : key;
+                
+                if (value && typeof value === 'object' && !Array.isArray(value)) {
+                  // If it's a nested object, flatten it
+                  flatten(value, newKey);
+                } else {
+                  // If it's a primitive value or array, keep it
+                  result[newKey] = value;
+                }
+              });
+            };
+
+            flatten(obj);
+            
+            // Remove any nested prefixes we don't want
+            const cleanedResult = {};
+            Object.entries(result).forEach(([key, value]) => {
+              // Remove any nested prefixes (e.g., "status_value" becomes "status")
+              const cleanKey = key.split('_').pop();
+              cleanedResult[cleanKey] = value;
+            });
+            
+            return cleanedResult;
+          };
+
+          // Flatten the response
+          parsedResponse = flattenJson(parsedResponse);
+          console.log('Flattened response:', JSON.stringify(parsedResponse, null, 2));
         } catch (parseError) {
           console.error('Failed to parse Gemini response as JSON:', parseError);
           throw new Error('Invalid JSON response from Gemini');
         }
 
-        // Validate the category
-        const validCategories = ['rejected', 'interview', 'offer', 'other'];
-        if (!validCategories.includes(parsedResponse.category)) {
-          throw new Error(`Invalid category received: ${parsedResponse.category}`);
+        // Validate the status
+        const validStatuses = ['rejected', 'interview', 'offer', 'other'];
+        if (!validStatuses.includes(parsedResponse.status)) {
+          console.error('Invalid status received:', parsedResponse.status);
+          throw new Error(`Invalid status received: ${parsedResponse.status}`);
         }
 
         console.log('Successfully processed email:', parsedResponse);
