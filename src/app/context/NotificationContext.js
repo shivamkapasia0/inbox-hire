@@ -1,9 +1,10 @@
 'use client';
 
-import { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
+import { useSettings } from '../utils/useSettings';
 
-const NotificationContext = createContext();
+export const NotificationContext = React.createContext();
 
 export function useNotification() {
   const context = useContext(NotificationContext);
@@ -14,10 +15,20 @@ export function useNotification() {
 }
 
 export function NotificationProvider({ children }) {
-  const [notifications, setNotifications] = useState([]);
+  const [allNotifications, setAllNotifications] = useState([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [lastPollTime, setLastPollTime] = useState(null);
   const router = useRouter();
+  const { settings } = useSettings();
+
+  // Get only the 3 most recent notifications
+  const notifications = allNotifications.slice(0, 3);
+
+  // Update unread count whenever notifications change
+  useEffect(() => {
+    const unread = allNotifications.filter(n => !n.read).length;
+    setUnreadCount(unread);
+  }, [allNotifications]);
 
   // Function to add a new notification
   const addNotification = useCallback((email) => {
@@ -30,7 +41,7 @@ export function NotificationProvider({ children }) {
       email: email
     };
 
-    setNotifications(prev => {
+    setAllNotifications(prev => {
       // Check if notification already exists
       const exists = prev.some(n => n.id === newNotification.id);
       if (exists) {
@@ -40,8 +51,6 @@ export function NotificationProvider({ children }) {
       console.log('Adding new notification to state');
       return [newNotification, ...prev];
     });
-    
-    setUnreadCount(prev => prev + 1);
 
     // Show browser notification if permission granted
     if ('Notification' in window && Notification.permission === 'granted') {
@@ -55,14 +64,20 @@ export function NotificationProvider({ children }) {
 
   // Function to mark notifications as read
   const markAsRead = useCallback((notificationId) => {
-    setNotifications(prev =>
+    setAllNotifications(prev =>
       prev.map(notification =>
         notification.id === notificationId
           ? { ...notification, read: true }
           : notification
       )
     );
-    setUnreadCount(prev => Math.max(0, prev - 1));
+  }, []);
+
+  // Function to mark all notifications as read
+  const markAllAsRead = useCallback(() => {
+    setAllNotifications(prev =>
+      prev.map(notification => ({ ...notification, read: true }))
+    );
   }, []);
 
   // Function to handle notification click
@@ -71,9 +86,11 @@ export function NotificationProvider({ children }) {
     router.push('/applications');
   }, [markAsRead, router]);
 
-  // Poll for new emails every 5 seconds
+  // Poll for new emails based on refresh interval
   useEffect(() => {
     let isPolling = true;
+    const refreshInterval = settings?.dashboard?.refreshInterval || 5; // Default to 5 minutes if not set
+    const pollInterval = refreshInterval * 60 * 1000; // Convert minutes to milliseconds
 
     const pollEmails = async () => {
       if (!isPolling) return;
@@ -91,7 +108,7 @@ export function NotificationProvider({ children }) {
         console.log('Received emails:', emails.length);
         
         // Get the latest notification timestamp
-        const latestNotificationTime = notifications[0]?.timestamp;
+        const latestNotificationTime = allNotifications[0]?.timestamp;
         console.log('Latest notification time:', latestNotificationTime);
         
         // Add notifications for new emails
@@ -122,23 +139,25 @@ export function NotificationProvider({ children }) {
     pollEmails();
 
     // Set up polling interval
-    const interval = setInterval(pollEmails, 5000); // Poll every 5 seconds
+    const interval = setInterval(pollEmails, pollInterval);
 
     return () => {
       isPolling = false;
       clearInterval(interval);
     };
-  }, [notifications, addNotification]);
+  }, [allNotifications, addNotification, settings?.dashboard?.refreshInterval]);
 
   return (
     <NotificationContext.Provider
       value={{
-        notifications,
+        notifications, // This will only contain the 3 most recent notifications
+        allNotifications, // Keep track of all notifications for internal use
         unreadCount,
+        addNotification,
         markAsRead,
+        markAllAsRead,
         handleNotificationClick,
-        lastPollTime,
-        addNotification
+        lastPollTime
       }}
     >
       {children}

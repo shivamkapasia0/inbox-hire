@@ -16,6 +16,13 @@ import ApplicationSourceDistribution from './components/ApplicationSourceDistrib
 import { useSettings } from './utils/useSettings';
 import { useRealtimeUpdates } from './utils/useRealtimeUpdates';
 
+const getGreeting = () => {
+  const hour = new Date().getHours();
+  if (hour < 12) return "Good Morning";
+  if (hour < 18) return "Good Afternoon";
+  return "Good Evening";
+};
+
 export default function Home() {
   const [currentPage, setCurrentPage] = useState('home');
   const { settings } = useSettings();
@@ -43,7 +50,7 @@ export default function Home() {
           {settings.dashboard?.showSections?.summaryCards && (
             <div className="rounded-lg shadow p-6 bg-white/25 dark:bg-gray-800/25 backdrop-blur-md border border-white/18 dark:border-white/10 rounded-2xl shadow-lg p-5 mb-4">
               <h1 className="text-xl font-semibold mb-4 text-gray-800 dark:text-white">
-                Good Morning, Welcome back!
+                {getGreeting()}, Welcome back!
               </h1>
               <SummaryCards key={`summary-${refreshKey}`} />
             </div>

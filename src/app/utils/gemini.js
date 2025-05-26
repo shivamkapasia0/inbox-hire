@@ -2,7 +2,7 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 
 export async function categorizeEmailWithGemini(email, settings) {
   try {
-    console.log('Starting Gemini categorization...');
+    console.log('Starting Gemini categorization and information extraction...');
     
     // Check if Gemini API key is configured
     if (!settings?.api?.geminiKey) {
@@ -19,16 +19,19 @@ export async function categorizeEmailWithGemini(email, settings) {
     const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
 
     // Prepare the prompt
-    const prompt = `Analyze this email and categorize it based on the following criteria:
-    - If it's a rejection email, respond with "rejected"
-    - If it's an interview invitation or scheduling, respond with "interview"
-    - If it's a job offer, respond with "offer"
-    - If none of the above, respond with "other"
+    const prompt = `Analyze this email and provide the following information in JSON format:
+    1. Category (must be one of: "rejected", "interview", "offer", "other")
+    2. Company name (if mentioned)
+    3. Position/Job title (if mentioned)
+    4. Date (if mentioned, in YYYY-MM-DD format)
+    5. Location (if mentioned)
+    6. Salary/Compensation (if mentioned)
+    7. Next steps or action items (if mentioned)
 
     Email Subject: ${email.subject}
     Email Body: ${email.text}
 
-    Respond with ONLY one of these words: rejected, interview, offer, other`;
+    Respond with a JSON object containing these fields. Use null for any information not found.`;
 
     console.log('Sending request to Gemini...');
 
@@ -46,18 +49,25 @@ export async function categorizeEmailWithGemini(email, settings) {
           }]
         });
         const response = await result.response;
-        const category = response.text().trim().toLowerCase();
-
-        console.log('Received response from Gemini:', category);
-
-        // Validate the response
-        const validCategories = ['rejected', 'interview', 'offer', 'other'];
-        if (!validCategories.includes(category)) {
-          throw new Error(`Invalid category received: ${category}`);
+        const responseText = response.text().trim();
+        
+        // Parse the JSON response
+        let parsedResponse;
+        try {
+          parsedResponse = JSON.parse(responseText);
+        } catch (parseError) {
+          console.error('Failed to parse Gemini response as JSON:', parseError);
+          throw new Error('Invalid JSON response from Gemini');
         }
 
-        console.log('Successfully categorized email as:', category);
-        return category;
+        // Validate the category
+        const validCategories = ['rejected', 'interview', 'offer', 'other'];
+        if (!validCategories.includes(parsedResponse.category)) {
+          throw new Error(`Invalid category received: ${parsedResponse.category}`);
+        }
+
+        console.log('Successfully processed email:', parsedResponse);
+        return parsedResponse;
       } catch (error) {
         console.error(`Gemini API attempt ${4 - retries} failed:`, error);
         lastError = error;
@@ -68,9 +78,9 @@ export async function categorizeEmailWithGemini(email, settings) {
       }
     }
 
-    throw lastError || new Error('Failed to categorize email with Gemini');
+    throw lastError || new Error('Failed to process email with Gemini');
   } catch (error) {
-    console.error('Error in Gemini categorization:', error);
+    console.error('Error in Gemini processing:', error);
     throw error;
   }
 } 
