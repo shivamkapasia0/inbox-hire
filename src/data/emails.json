@@ -1,0 +1,32 @@
+[
+  {
+    "id": "1748230488786",
+    "from": "hr@company.com",
+    "to": "shivam@inbound.postmarkapp.com",
+    "subject": "Offer Letter for Frontend Developer",
+    "text": "Congratulations! You've been selected.",
+    "html": "<p>Congratulations! You've been selected.</p>",
+    "date": "Fri, 23 May 2025 10:00:00 +0530",
+    "status": "offer"
+  },
+  {
+    "id": "1748230611807",
+    "from": "hr@company.com",
+    "to": "shivam@inbound.postmarkapp.com",
+    "subject": "Offer Letter for Frontend Developer",
+    "text": "Congratulations! You've been selected.",
+    "html": "<p>Congratulations! You've been selected.</p>",
+    "date": "Fri, 23 May 2025 10:00:00 +0530",
+    "status": "offer"
+  },
+  {
+    "id": "1748230731451",
+    "from": "shivam@shivamkapasia.dev",
+    "to": "\"cac0731fa0b48a89b6bb9d12bca81e59+c8819ae7013a6f1294da41992e1cc048@inbound.postmarkapp.com\" <cac0731fa0b48a89b6bb9d12bca81e59+c8819ae7013a6f1294da41992e1cc048@inbound.postmarkapp.com>",
+    "subject": "this is test subject",
+    "text": "Hi There,\n \nThis is test email body.\n \nRegards,\nShivam",
+    "html": "<!doctype html>\n<html>\n <head>\n  <meta charset=\"UTF-8\">\n </head>\n <body>\n  <div class=\"default-style\">\n   Hi <strong>There</strong>,\n  </div>\n  <div class=\"default-style\">\n   &nbsp;\n  </div>\n  <div class=\"default-style\">\n   This is test email body.\n  </div>\n  <div class=\"default-style\">\n   &nbsp;\n  </div>\n  <div class=\"default-style\">\n   <strong>Regards</strong>,\n  </div>\n  <div class=\"default-style\">\n   Shivam\n  </div>\n </body>\n</html>",
+    "date": "Mon, 26 May 2025 08:34:50 +0530 (IST)",
+    "status": "other"
+  }
+]

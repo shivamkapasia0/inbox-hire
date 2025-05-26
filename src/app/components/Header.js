@@ -3,6 +3,7 @@
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { MdHome, MdPieChart, MdSettings, MdOutlineCases, MdAccountCircle, MdDocumentScanner } from "react-icons/md";
+import NotificationIcon from './NotificationIcon';
 
 // Removed placeholder SVGs
 
@@ -46,8 +47,9 @@ export default function Header({ currentPage }) {
         </button>
       </div>
 
-      {/* Right section: Profile Icon */}
-      <div className="flex items-center">
+      {/* Right section: Notification and Profile Icons */}
+      <div className="flex items-center space-x-4">
+        <NotificationIcon />
         <button className="p-2 rounded-full transition-transform duration-200 transform hover:scale-110">
           <div className="p-2 rounded-full border border-gray-300 dark:border-gray-600 flex items-center justify-center">
             <MdAccountCircle className="w-8 h-8 text-gray-900 dark:text-gray-100" />
