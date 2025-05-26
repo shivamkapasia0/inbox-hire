@@ -40,7 +40,7 @@
       "screeningsss"
     ],
     "noResponseDays": 7,
-    "enableCustom": false,
+    "enableCustom": true,
     "customKeywords": []
   },
   "dashboard": {

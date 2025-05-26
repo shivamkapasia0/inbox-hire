@@ -39,6 +39,7 @@ export default function ApplicationsTable() {
   const { settings } = useSettings();
   const { lastUpdate } = useRealtimeUpdates();
   const lastUpdateRef = useRef(lastUpdate);
+  const [search, setSearch] = useState('');
 
   const loadApplications = async () => {
     try {
@@ -148,75 +149,124 @@ export default function ApplicationsTable() {
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
+      {/* Search and Filter */}
+      <div className="flex flex-wrap gap-4 items-center justify-between">
+        <div className="relative flex-1 min-w-[200px]">
+          <input
+            type="text"
+            placeholder="Search applications..."
+            className="w-full px-4 py-3 rounded-xl border border-gray-200/40 dark:border-gray-700/40 bg-gray-50/80 dark:bg-gray-800/80 focus:ring-2 focus:ring-blue-400 focus:border-transparent shadow-sm transition-all duration-200"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+          <span className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400">
+            🔍
+          </span>
+        </div>
+        <select
+          className="px-4 py-3 rounded-xl border border-gray-200/40 dark:border-gray-700/40 bg-gray-50/80 dark:bg-gray-800/80 focus:ring-2 focus:ring-blue-400 focus:border-transparent shadow-sm transition-all duration-200"
+          value={filter}
+          onChange={(e) => setFilter(e.target.value)}
+        >
+          <option value="all">All Status</option>
+          <option value="interview">Interview</option>
+          <option value="offer">Offer</option>
+          <option value="rejected">Rejected</option>
+          <option value="in-progress">In Progress</option>
+        </select>
+        <button
+          className="px-4 py-2 rounded-xl bg-gradient-to-r from-blue-500 to-blue-600 text-white font-semibold hover:from-blue-600 hover:to-blue-700 transition-all duration-200 shadow-lg hover:shadow-blue-500/25 transform hover:scale-105"
+          onClick={() => router.push('/applications')}
+        >
+          View All Applications
+        </button>
+      </div>
+
       {/* Table */}
-      <div className="overflow-x-auto">
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
-            <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Position
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Company
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Status
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Date
-              </th>
-            </tr>
-          </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
-            {currentApplications.map((application) => (
-              <tr
-                key={application.id}
-                onClick={() => handleRowClick(application.id)}
-                className="hover:bg-gray-50 cursor-pointer transition-colors"
-              >
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="text-sm font-medium text-gray-900">{application.jobTitle}</div>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="text-sm text-gray-500">{application.company}</div>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <span
-                    className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${statusColors[application.status].text} ${statusColors[application.status].bg}`}
-                  >
-                    {application.status.charAt(0).toUpperCase() + application.status.slice(1)}
-                  </span>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  {new Date(application.date).toLocaleDateString()}
-                </td>
+      <div className="rounded-2xl overflow-hidden border border-gray-200/40 dark:border-gray-700/40 bg-gradient-to-br from-purple-50/50 to-blue-50/50 dark:from-gray-800/80 dark:to-gray-900/80 shadow-lg">
+        <div className="overflow-x-auto">
+          <table className="min-w-full divide-y divide-gray-200/40 dark:divide-gray-700/40">
+            <thead>
+              <tr className="bg-transparent">
+                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">
+                  Position
+                </th>
+                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">
+                  Company
+                </th>
+                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">
+                  Status
+                </th>
+                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">
+                  Date
+                </th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody className="divide-y divide-gray-200/40 dark:divide-gray-700/40">
+              {currentApplications.map((application) => (
+                <tr
+                  key={application.id}
+                  onClick={() => handleRowClick(application.id)}
+                  className="group bg-transparent cursor-pointer transition-colors duration-200 hover:bg-blue-50/50 dark:hover:bg-gray-700/50"
+                >
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="text-sm font-medium text-gray-900 dark:text-white">
+                      {application.jobTitle}
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="text-sm text-gray-600 dark:text-gray-300">
+                      {application.company}
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <span
+                      className={`px-3 py-1.5 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                        application.status === 'interview' 
+                          ? 'bg-blue-100/80 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300' 
+                          : application.status === 'offer'
+                          ? 'bg-green-100/80 text-green-800 dark:bg-green-900/30 dark:text-green-300'
+                          : application.status === 'rejected'
+                          ? 'bg-red-100/80 text-red-800 dark:bg-red-900/30 dark:text-red-300'
+                          : 'bg-gray-100/80 text-gray-800 dark:bg-gray-600/30 dark:text-gray-200'
+                      }`}
+                    >
+                      {application.status.charAt(0).toUpperCase() + application.status.slice(1)}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                    {new Date(application.date).toLocaleDateString()}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
 
       {/* Pagination */}
       {totalPages > 1 && (
-        <div className="flex justify-between items-center mt-4">
-          <button
-            onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
-            disabled={currentPage === 1}
-            className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50"
-          >
-            Previous
-          </button>
-          <span className="text-sm text-gray-700">
-            Page {currentPage} of {totalPages}
-          </span>
-          <button
-            onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
-            disabled={currentPage === totalPages}
-            className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50"
-          >
-            Next
-          </button>
+        <div className="flex justify-center gap-2 mt-6">
+          {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+            <button
+              key={page}
+              className={`px-4 py-2 rounded-lg transition-all duration-200 ${
+                currentPage === page
+                  ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/25'
+                  : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-600'
+              }`}
+              onClick={() => setCurrentPage(page)}
+            >
+              {page}
+            </button>
+          ))}
+        </div>
+      )}
+
+      {currentApplications.length === 0 && (
+        <div className="text-center py-12">
+          <p className="text-gray-500 dark:text-gray-400">No applications found.</p>
         </div>
       )}
     </div>

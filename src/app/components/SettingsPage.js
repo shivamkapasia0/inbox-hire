@@ -112,25 +112,27 @@ export default function SettingsPage() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto py-8 px-4 md:px-6 space-y-8">
-      <h1 className="text-3xl md:text-4xl font-bold mb-8 text-center text-gray-900 dark:text-white tracking-tight">Settings</h1>
+    <div className="max-w-5xl mx-auto py-12 px-4 md:px-8 space-y-10">
+      {/* <h1 className="text-4xl md:text-5xl font-bold mb-12 text-center bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent tracking-tight">Settings</h1> */}
       
       {/* Email Parsing Settings */}
-      <section className="p-6 rounded-2xl shadow-xl bg-white/80 dark:bg-gray-900/80 border border-gray-200/40 backdrop-blur-md">
-        <div className="flex items-center gap-2 mb-6">
-          <MdTune className="w-7 h-7 text-amber-500" />
-          <h2 className="text-xl font-semibold">Email Parsing Settings</h2>
+      <section className="p-8 rounded-3xl shadow-2xl bg-gradient-to-br from-white/90 to-white/70 dark:from-gray-900/90 dark:to-gray-800/70 border border-gray-200/40 backdrop-blur-xl hover:shadow-blue-500/5 transition-all duration-300">
+        <div className="flex items-center gap-3 mb-8">
+          <div className="p-2 rounded-xl bg-gradient-to-br from-amber-400 to-amber-600">
+            <MdTune className="w-8 h-8 text-white" />
+          </div>
+          <h2 className="text-2xl font-bold bg-gradient-to-r from-amber-600 to-amber-800 bg-clip-text text-transparent">Email Parsing Settings</h2>
         </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="space-y-4">
-            <div>
-              <label className="block font-medium mb-2 flex items-center gap-2">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div className="space-y-6">
+            <div className="transform hover:scale-[1.02] transition-transform duration-200">
+              <label className="block font-semibold mb-3 flex items-center gap-2 text-gray-800 dark:text-gray-200">
                 Rejection Keywords
                 <HelpIcon helpText="Keywords that indicate a rejection email" />
               </label>
               <textarea
-                className="w-full p-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 focus:ring-2 focus:ring-blue-400 focus:border-transparent"
+                className="w-full p-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-white/50 dark:bg-gray-800/50 focus:ring-2 focus:ring-amber-400 focus:border-transparent shadow-sm transition-all duration-200"
                 value={settings.parsing.rejectionKeywords.join(', ')}
                 onChange={e => handleParsingKeywords('rejectionKeywords', e.target.value)}
                 rows={3}
@@ -138,13 +140,13 @@ export default function SettingsPage() {
               />
             </div>
 
-            <div>
-              <label className="block font-medium mb-2 flex items-center gap-2">
+            <div className="transform hover:scale-[1.02] transition-transform duration-200">
+              <label className="block font-semibold mb-3 flex items-center gap-2 text-gray-800 dark:text-gray-200">
                 Interview Keywords
                 <HelpIcon helpText="Keywords that indicate an interview request" />
               </label>
               <textarea
-                className="w-full p-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 focus:ring-2 focus:ring-blue-400 focus:border-transparent"
+                className="w-full p-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-white/50 dark:bg-gray-800/50 focus:ring-2 focus:ring-amber-400 focus:border-transparent shadow-sm transition-all duration-200"
                 value={settings.parsing.interviewKeywords.join(', ')}
                 onChange={e => handleParsingKeywords('interviewKeywords', e.target.value)}
                 rows={3}
@@ -152,13 +154,13 @@ export default function SettingsPage() {
               />
             </div>
 
-            <div>
-              <label className="block font-medium mb-2 flex items-center gap-2">
+            <div className="transform hover:scale-[1.02] transition-transform duration-200">
+              <label className="block font-semibold mb-3 flex items-center gap-2 text-gray-800 dark:text-gray-200">
                 Offer Keywords
                 <HelpIcon helpText="Keywords that indicate a job offer" />
               </label>
               <textarea
-                className="w-full p-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 focus:ring-2 focus:ring-blue-400 focus:border-transparent"
+                className="w-full p-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-white/50 dark:bg-gray-800/50 focus:ring-2 focus:ring-amber-400 focus:border-transparent shadow-sm transition-all duration-200"
                 value={settings.parsing.offerKeywords.join(', ')}
                 onChange={e => handleParsingKeywords('offerKeywords', e.target.value)}
                 rows={3}
@@ -167,14 +169,14 @@ export default function SettingsPage() {
             </div>
           </div>
 
-          <div className="space-y-4">
-            <div>
-              <label className="block font-medium mb-2 flex items-center gap-2">
+          <div className="space-y-6">
+            <div className="transform hover:scale-[1.02] transition-transform duration-200">
+              <label className="block font-semibold mb-3 flex items-center gap-2 text-gray-800 dark:text-gray-200">
                 Not Selected Keywords
                 <HelpIcon helpText="Keywords that indicate not being selected" />
               </label>
               <textarea
-                className="w-full p-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 focus:ring-2 focus:ring-blue-400 focus:border-transparent"
+                className="w-full p-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-white/50 dark:bg-gray-800/50 focus:ring-2 focus:ring-amber-400 focus:border-transparent shadow-sm transition-all duration-200"
                 value={settings.parsing.notSelectedKeywords.join(', ')}
                 onChange={e => handleParsingKeywords('notSelectedKeywords', e.target.value)}
                 rows={3}
@@ -182,13 +184,13 @@ export default function SettingsPage() {
               />
             </div>
 
-            <div>
-              <label className="block font-medium mb-2 flex items-center gap-2">
+            <div className="transform hover:scale-[1.02] transition-transform duration-200">
+              <label className="block font-semibold mb-3 flex items-center gap-2 text-gray-800 dark:text-gray-200">
                 No Response Keywords
                 <HelpIcon helpText="Keywords that indicate no response" />
               </label>
               <textarea
-                className="w-full p-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 focus:ring-2 focus:ring-blue-400 focus:border-transparent"
+                className="w-full p-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-white/50 dark:bg-gray-800/50 focus:ring-2 focus:ring-amber-400 focus:border-transparent shadow-sm transition-all duration-200"
                 value={settings.parsing.noResponseKeywords.join(', ')}
                 onChange={e => handleParsingKeywords('noResponseKeywords', e.target.value)}
                 rows={3}
@@ -196,13 +198,13 @@ export default function SettingsPage() {
               />
             </div>
 
-            <div>
-              <label className="block font-medium mb-2 flex items-center gap-2">
+            <div className="transform hover:scale-[1.02] transition-transform duration-200">
+              <label className="block font-semibold mb-3 flex items-center gap-2 text-gray-800 dark:text-gray-200">
                 In Progress Keywords
                 <HelpIcon helpText="Keywords that indicate application is in progress" />
               </label>
               <textarea
-                className="w-full p-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 focus:ring-2 focus:ring-blue-400 focus:border-transparent"
+                className="w-full p-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-white/50 dark:bg-gray-800/50 focus:ring-2 focus:ring-amber-400 focus:border-transparent shadow-sm transition-all duration-200"
                 value={settings.parsing.inProgressKeywords.join(', ')}
                 onChange={e => handleParsingKeywords('inProgressKeywords', e.target.value)}
                 rows={3}
@@ -210,8 +212,8 @@ export default function SettingsPage() {
               />
             </div>
 
-            <div>
-              <label className="block font-medium mb-2 flex items-center gap-2">
+            <div className="transform hover:scale-[1.02] transition-transform duration-200">
+              <label className="block font-semibold mb-3 flex items-center gap-2 text-gray-800 dark:text-gray-200">
                 Days Until Considered No Response
                 <HelpIcon helpText="Applications will be marked as 'No Response' after this many days" />
               </label>
@@ -219,7 +221,7 @@ export default function SettingsPage() {
                 type="number"
                 min="1"
                 max="90"
-                className="w-full p-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 focus:ring-2 focus:ring-blue-400 focus:border-transparent"
+                className="w-full p-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-white/50 dark:bg-gray-800/50 focus:ring-2 focus:ring-amber-400 focus:border-transparent shadow-sm transition-all duration-200"
                 value={settings.parsing.noResponseDays}
                 onChange={e => {
                   const value = parseInt(e.target.value);
@@ -230,7 +232,7 @@ export default function SettingsPage() {
           </div>
         </div>
 
-        <div className="mt-6 flex items-center">
+        <div className="mt-8 flex items-center">
           <input
             type="checkbox"
             id="enableCustom"
@@ -245,21 +247,23 @@ export default function SettingsPage() {
       </section>
 
       {/* Dashboard Preferences */}
-      <section className="p-6 rounded-2xl shadow-xl bg-white/80 dark:bg-gray-900/80 border border-gray-200/40 backdrop-blur-md">
-        <div className="flex items-center gap-2 mb-6">
-          <MdDashboard className="w-7 h-7 text-purple-500" />
-          <h2 className="text-xl font-semibold">Dashboard Preferences</h2>
+      <section className="p-8 rounded-3xl shadow-2xl bg-gradient-to-br from-white/90 to-white/70 dark:from-gray-900/90 dark:to-gray-800/70 border border-gray-200/40 backdrop-blur-xl hover:shadow-purple-500/5 transition-all duration-300">
+        <div className="flex items-center gap-3 mb-8">
+          <div className="p-2 rounded-xl bg-gradient-to-br from-purple-400 to-purple-600">
+            <MdDashboard className="w-8 h-8 text-white" />
+          </div>
+          <h2 className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-purple-800 bg-clip-text text-transparent">Dashboard Preferences</h2>
         </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="space-y-4">
-            <div>
-              <label className="block font-medium mb-2 flex items-center gap-2">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div className="space-y-6">
+            <div className="transform hover:scale-[1.02] transition-transform duration-200">
+              <label className="block font-semibold mb-3 flex items-center gap-2 text-gray-800 dark:text-gray-200">
                 Default View
                 <HelpIcon helpText="Choose how applications are displayed by default" />
               </label>
               <select
-                className="w-full p-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 focus:ring-2 focus:ring-blue-400 focus:border-transparent"
+                className="w-full p-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-white/50 dark:bg-gray-800/50 focus:ring-2 focus:ring-purple-400 focus:border-transparent shadow-sm transition-all duration-200"
                 value={settings.dashboard.defaultView}
                 onChange={e => handleChange('dashboard', 'defaultView', e.target.value)}
               >
@@ -269,13 +273,13 @@ export default function SettingsPage() {
               </select>
             </div>
 
-            <div>
-              <label className="block font-medium mb-2 flex items-center gap-2">
+            <div className="transform hover:scale-[1.02] transition-transform duration-200">
+              <label className="block font-semibold mb-3 flex items-center gap-2 text-gray-800 dark:text-gray-200">
                 Items Per Page
                 <HelpIcon helpText="Number of applications to show per page" />
               </label>
               <select
-                className="w-full p-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 focus:ring-2 focus:ring-blue-400 focus:border-transparent"
+                className="w-full p-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-white/50 dark:bg-gray-800/50 focus:ring-2 focus:ring-purple-400 focus:border-transparent shadow-sm transition-all duration-200"
                 value={settings.dashboard.itemsPerPage}
                 onChange={e => handleChange('dashboard', 'itemsPerPage', parseInt(e.target.value))}
               >
@@ -286,13 +290,13 @@ export default function SettingsPage() {
               </select>
             </div>
 
-            <div>
-              <label className="block font-medium mb-2 flex items-center gap-2">
+            <div className="transform hover:scale-[1.02] transition-transform duration-200">
+              <label className="block font-semibold mb-3 flex items-center gap-2 text-gray-800 dark:text-gray-200">
                 Sort Order
                 <HelpIcon helpText="Default sorting order for applications" />
               </label>
               <select
-                className="w-full p-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 focus:ring-2 focus:ring-blue-400 focus:border-transparent"
+                className="w-full p-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-white/50 dark:bg-gray-800/50 focus:ring-2 focus:ring-purple-400 focus:border-transparent shadow-sm transition-all duration-200"
                 value={settings.dashboard.sortOrder}
                 onChange={e => handleChange('dashboard', 'sortOrder', e.target.value)}
               >
@@ -303,13 +307,13 @@ export default function SettingsPage() {
               </select>
             </div>
 
-            <div>
-              <label className="block font-medium mb-2 flex items-center gap-2">
+            <div className="transform hover:scale-[1.02] transition-transform duration-200">
+              <label className="block font-semibold mb-3 flex items-center gap-2 text-gray-800 dark:text-gray-200">
                 Date Format
                 <HelpIcon helpText="How dates are displayed throughout the application" />
               </label>
               <select
-                className="w-full p-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 focus:ring-2 focus:ring-blue-400 focus:border-transparent"
+                className="w-full p-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-white/50 dark:bg-gray-800/50 focus:ring-2 focus:ring-purple-400 focus:border-transparent shadow-sm transition-all duration-200"
                 value={settings.dashboard.dateFormat}
                 onChange={e => handleChange('dashboard', 'dateFormat', e.target.value)}
               >
@@ -320,13 +324,13 @@ export default function SettingsPage() {
               </select>
             </div>
 
-            <div>
-              <label className="block font-medium mb-2 flex items-center gap-2">
+            <div className="transform hover:scale-[1.02] transition-transform duration-200">
+              <label className="block font-semibold mb-3 flex items-center gap-2 text-gray-800 dark:text-gray-200">
                 Time Zone
                 <HelpIcon helpText="Time zone for displaying dates and times" />
               </label>
               <select
-                className="w-full p-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 focus:ring-2 focus:ring-blue-400 focus:border-transparent"
+                className="w-full p-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-white/50 dark:bg-gray-800/50 focus:ring-2 focus:ring-purple-400 focus:border-transparent shadow-sm transition-all duration-200"
                 value={settings.dashboard.timeZone}
                 onChange={e => handleChange('dashboard', 'timeZone', e.target.value)}
               >
@@ -340,14 +344,14 @@ export default function SettingsPage() {
             </div>
           </div>
 
-          <div className="space-y-4">
-            <div>
-              <label className="block font-medium mb-2 flex items-center gap-2">
+          <div className="space-y-6">
+            <div className="transform hover:scale-[1.02] transition-transform duration-200">
+              <label className="block font-semibold mb-3 flex items-center gap-2 text-gray-800 dark:text-gray-200">
                 Refresh Interval
                 <HelpIcon helpText="How often to automatically refresh dashboard data" />
               </label>
               <select
-                className="w-full p-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 focus:ring-2 focus:ring-blue-400 focus:border-transparent"
+                className="w-full p-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-white/50 dark:bg-gray-800/50 focus:ring-2 focus:ring-purple-400 focus:border-transparent shadow-sm transition-all duration-200"
                 value={settings.dashboard.refreshInterval}
                 onChange={e => handleChange('dashboard', 'refreshInterval', parseInt(e.target.value))}
               >
@@ -360,7 +364,7 @@ export default function SettingsPage() {
             </div>
 
             <div className="space-y-2">
-              <label className="block font-medium mb-2">Visible Sections</label>
+              <label className="block font-semibold mb-3">Visible Sections</label>
               <div className="space-y-2">
                 {Object.entries(settings.dashboard?.showSections || defaultSettings.dashboard.showSections).map(([section, isVisible]) => (
                   <div key={section} className="flex items-center">
@@ -383,7 +387,7 @@ export default function SettingsPage() {
             </div>
 
             <div className="space-y-2">
-              <label className="block font-medium mb-2">Display Options</label>
+              <label className="block font-semibold mb-3">Display Options</label>
               <div className="space-y-2">
                 <div className="flex items-center">
                   <input
@@ -443,15 +447,17 @@ export default function SettingsPage() {
       </section>
 
       {/* API Settings */}
-      <section className="p-6 rounded-2xl shadow-xl bg-white/80 dark:bg-gray-900/80 border border-gray-200/40 backdrop-blur-md">
-        <div className="flex items-center gap-2 mb-6">
-          <MdApi className="w-7 h-7 text-green-500" />
-          <h2 className="text-xl font-semibold">API Settings</h2>
+      <section className="p-8 rounded-3xl shadow-2xl bg-gradient-to-br from-white/90 to-white/70 dark:from-gray-900/90 dark:to-gray-800/70 border border-gray-200/40 backdrop-blur-xl hover:shadow-green-500/5 transition-all duration-300">
+        <div className="flex items-center gap-3 mb-8">
+          <div className="p-2 rounded-xl bg-gradient-to-br from-green-400 to-green-600">
+            <MdApi className="w-8 h-8 text-white" />
+          </div>
+          <h2 className="text-2xl font-bold bg-gradient-to-r from-green-600 to-green-800 bg-clip-text text-transparent">API Settings</h2>
         </div>
         
         <div className="space-y-4">
-          <div>
-            <label className="block font-medium mb-2">
+          <div className="transform hover:scale-[1.02] transition-transform duration-200">
+            <label className="block font-semibold mb-3">
               Gemini API Key
               <span className="text-sm font-normal text-gray-500 ml-2">Your Google Gemini API key for AI features</span>
             </label>
@@ -475,22 +481,24 @@ export default function SettingsPage() {
       </section>
 
       {/* Data Management */}
-      <section className="p-6 rounded-2xl shadow-xl bg-white/80 dark:bg-gray-900/80 border border-gray-200/40 backdrop-blur-md">
-        <div className="flex items-center gap-2 mb-6">
-          <MdStorage className="w-7 h-7 text-green-600" />
-          <h2 className="text-xl font-semibold">Data Management</h2>
+      <section className="p-8 rounded-3xl shadow-2xl bg-gradient-to-br from-white/90 to-white/70 dark:from-gray-900/90 dark:to-gray-800/70 border border-gray-200/40 backdrop-blur-xl hover:shadow-blue-500/5 transition-all duration-300">
+        <div className="flex items-center gap-3 mb-8">
+          <div className="p-2 rounded-xl bg-gradient-to-br from-blue-400 to-blue-600">
+            <MdStorage className="w-8 h-8 text-white" />
+          </div>
+          <h2 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-blue-800 bg-clip-text text-transparent">Data Management</h2>
         </div>
         
         <div className="flex flex-wrap gap-4">
           <button
-            className="px-4 py-2 rounded-lg bg-blue-500 text-white font-semibold hover:bg-blue-600 transition"
+            className="px-6 py-3 rounded-xl bg-gradient-to-r from-blue-500 to-blue-600 text-white font-semibold hover:from-blue-600 hover:to-blue-700 transition-all duration-200 shadow-lg hover:shadow-blue-500/25 transform hover:scale-105"
             onClick={handleSaveAll}
           >
             Save All Settings
           </button>
           
           <button
-            className="px-4 py-2 rounded-lg bg-green-500 text-white font-semibold hover:bg-green-600 transition"
+            className="px-6 py-3 rounded-xl bg-gradient-to-r from-green-500 to-green-600 text-white font-semibold hover:from-green-600 hover:to-green-700 transition-all duration-200 shadow-lg hover:shadow-green-500/25 transform hover:scale-105"
             onClick={async () => {
               try {
                 const response = await fetch('/api/export-data');
@@ -510,7 +518,7 @@ export default function SettingsPage() {
             Export Data
           </button>
           
-          <label className="px-4 py-2 rounded-lg bg-purple-500 text-white font-semibold hover:bg-purple-600 transition cursor-pointer">
+          <label className="px-6 py-3 rounded-xl bg-gradient-to-r from-purple-500 to-purple-600 text-white font-semibold hover:from-purple-600 hover:to-purple-700 transition-all duration-200 shadow-lg hover:shadow-purple-500/25 transform hover:scale-105 cursor-pointer">
             Import Data
             <input 
               type="file" 
@@ -540,7 +548,7 @@ export default function SettingsPage() {
           </label>
           
           <button
-            className="px-4 py-2 rounded-lg bg-red-500 text-white font-semibold hover:bg-red-600 transition"
+            className="px-6 py-3 rounded-xl bg-gradient-to-r from-red-500 to-red-600 text-white font-semibold hover:from-red-600 hover:to-red-700 transition-all duration-200 shadow-lg hover:shadow-red-500/25 transform hover:scale-105"
             onClick={() => setShowClearModal(true)}
           >
             Clear All Data
@@ -554,13 +562,13 @@ export default function SettingsPage() {
 
       {/* Confirm Modals */}
       {showClearModal && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black/40 z-50">
-          <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-xl max-w-md w-full mx-4">
-            <h3 className="text-lg font-semibold mb-4">Clear All Data</h3>
-            <p className="mb-6 text-gray-600 dark:text-gray-300">Are you sure you want to clear all application data? This action cannot be undone.</p>
+        <div className="fixed inset-0 flex items-center justify-center bg-black/60 backdrop-blur-sm z-50">
+          <div className="bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-2xl max-w-md w-full mx-4 transform transition-all duration-300 scale-100">
+            <h3 className="text-xl font-bold mb-4 bg-gradient-to-r from-red-600 to-red-800 bg-clip-text text-transparent">Clear All Data</h3>
+            <p className="mb-8 text-gray-600 dark:text-gray-300">Are you sure you want to clear all application data? This action cannot be undone.</p>
             <div className="flex gap-4">
               <button 
-                className="flex-1 px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition"
+                className="flex-1 px-6 py-3 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-xl hover:from-red-600 hover:to-red-700 transition-all duration-200 shadow-lg hover:shadow-red-500/25"
                 onClick={async () => {
                   try {
                     await fetch('/api/clear-data', { method: 'POST' });
@@ -574,7 +582,7 @@ export default function SettingsPage() {
                 Yes, Clear All
               </button>
               <button 
-                className="flex-1 px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition"
+                className="flex-1 px-6 py-3 bg-gradient-to-r from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-600 text-gray-800 dark:text-gray-200 rounded-xl hover:from-gray-300 hover:to-gray-400 dark:hover:from-gray-600 dark:hover:to-gray-500 transition-all duration-200 shadow-lg"
                 onClick={() => setShowClearModal(false)}
               >
                 Cancel
