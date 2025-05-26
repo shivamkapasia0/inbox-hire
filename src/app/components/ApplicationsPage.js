@@ -5,15 +5,13 @@ import { useToast } from './ToastProvider';
 import { FiX } from 'react-icons/fi';
 import ApplicationDetailsModal from './ApplicationDetailsModal';
 import { useSearchParams, useRouter } from 'next/navigation';
+import { fetchApplications } from '../utils/data';
 
 const statusColors = {
-  'Approve': 'bg-green-100 text-green-700',
-  'Overdue': 'bg-red-100 text-red-600',
-  'No Response': 'bg-yellow-100 text-yellow-800',
-  'In Progress': 'bg-gray-100 text-gray-800',
+  'Interview': 'bg-blue-100 text-blue-800',
+  'Offer': 'bg-green-100 text-green-800',
   'Rejected': 'bg-red-100 text-red-800',
-  'Offer Letters': 'bg-green-100 text-green-800',
-  'Interview Scheduled': 'bg-blue-100 text-blue-800',
+  'Other': 'bg-gray-100 text-gray-800'
 };
 
 const GROUP_FIELDS = [
@@ -22,20 +20,14 @@ const GROUP_FIELDS = [
   { key: 'statusBadge', label: 'Status' },
 ];
 
-function getStatus(app) {
-  if (app.status === 'Rejected') return 'Overdue';
-  if (app.status === 'Offer Letters') return 'Approve';
-  if (app.status === 'Interview Scheduled') return 'Approve';
-  if (app.status === 'No Response') return 'Overdue';
-  return app.status || 'In Progress';
-}
-
 export default function ApplicationsPage() {
   const { data, updateData } = useDataStore();
   const { showToast } = useToast();
   const searchParams = useSearchParams();
   const router = useRouter();
-  const applications = data.applications || [];
+  const [applications, setApplications] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [selectedRows, setSelectedRows] = useState([]);
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('All');
@@ -62,25 +54,30 @@ export default function ApplicationsPage() {
     }
   }, [statusFilter, router]);
 
-  // Map data to match required columns
-  const mappedApps = applications.map((app, i) => ({
-    ...app,
-    position: app.position,
-    company: app.company || app.name,
-    lastUpdate: app.lastUpdate || app.date,
-    source: app.source || '-',
-    statusBadge: getStatus(app),
-  }));
+  useEffect(() => {
+    const loadApplications = async () => {
+      try {
+        const data = await fetchApplications();
+        setApplications(data);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadApplications();
+  }, []);
 
   // Status options
   const statusOptions = useMemo(() => {
-    const all = mappedApps.map(a => a.statusBadge);
+    const all = applications.map(a => a.statusBadge);
     return ['All', ...Array.from(new Set(all))];
-  }, [mappedApps]);
+  }, [applications]);
 
   // Filter, search, group
   const filtered = useMemo(() => {
-    let arr = mappedApps;
+    let arr = applications;
     if (statusFilter !== 'All') {
       arr = arr.filter(app => app.statusBadge === statusFilter);
     }
@@ -99,7 +96,7 @@ export default function ApplicationsPage() {
       });
     }
     return arr;
-  }, [mappedApps, search, statusFilter, groupBy]);
+  }, [applications, search, statusFilter, groupBy]);
 
   // Bulk selection
   const allChecked = filtered.length > 0 && filtered.every(app => selectedRows.includes(app.id));
@@ -119,39 +116,33 @@ export default function ApplicationsPage() {
     setSelectedRows([]);
     showToast('Refreshed!', 'success');
   };
-  const handleImport = e => {
-    const file = e.target.files[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = evt => {
-      try {
-        const imported = JSON.parse(evt.target.result);
-        if (Array.isArray(imported)) {
-          updateData('applications', imported);
-          showToast('Applications imported!', 'success');
-        } else {
-          showToast('Invalid file format.', 'error');
-        }
-      } catch {
-        showToast('Invalid file format.', 'error');
-      }
-    };
-    reader.readAsText(file);
-  };
-  const handleExport = () => {
-    const blob = new Blob([JSON.stringify(filtered, null, 2)], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'applications-export.json';
-    a.click();
-    URL.revokeObjectURL(url);
-    showToast('Exported applications!', 'success');
-  };
+
+  if (loading) {
+    return (
+      <div className="max-w-6xl mx-auto py-8 px-2 md:px-6">
+        <div className="animate-pulse space-y-4">
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="h-16 bg-gray-200 rounded"></div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="max-w-6xl mx-auto py-8 px-2 md:px-6">
+        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
+          {error}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-6xl mx-auto py-8 px-2 md:px-6">
       <h1 className="text-2xl md:text-3xl font-bold mb-8 text-gray-900 dark:text-white tracking-tight">Applications</h1>
+      
       {/* Filters above search bar */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-4">
         <div className="flex flex-col md:flex-row md:items-center gap-2 w-full md:w-auto">
@@ -187,6 +178,7 @@ export default function ApplicationsPage() {
           </div>
         </div>
       </div>
+
       {/* Toolbar */}
       <div className="flex gap-2 flex-wrap mb-4">
         <div className="relative">
@@ -226,17 +218,11 @@ export default function ApplicationsPage() {
             </div>
           )}
         </div>
-        <button className="px-4 py-2 rounded-lg border border-gray-200 bg-white text-gray-700 shadow-sm hover:bg-blue-50 hover:text-blue-700 font-semibold transition" onClick={() => importInputRef.current && importInputRef.current.click()}>
-          Import
-        </button>
-        <input ref={importInputRef} type="file" accept=".json" className="hidden" onChange={handleImport} />
-        <button className="px-4 py-2 rounded-lg border border-gray-200 bg-white text-gray-700 shadow-sm hover:bg-blue-50 hover:text-blue-700 font-semibold transition" onClick={handleExport}>
-          Export
-        </button>
         <button className="px-4 py-2 rounded-lg border border-gray-200 bg-white text-gray-700 shadow-sm hover:bg-blue-50 hover:text-blue-700 font-semibold transition" onClick={handleRefresh}>
           Refresh
         </button>
       </div>
+
       {/* Table */}
       <div className="rounded-2xl shadow bg-white border border-gray-100 overflow-x-auto">
         <table className="min-w-full text-sm">
@@ -257,15 +243,17 @@ export default function ApplicationsPage() {
                 <td className="px-4 py-3"><input type="checkbox" checked={selectedRows.includes(app.id)} onChange={() => handleCheck(app.id)} /></td>
                 <td className="px-4 py-3 font-medium text-gray-900 whitespace-nowrap">{app.position}</td>
                 <td className="px-4 py-3 whitespace-nowrap">{app.company}</td>
-                <td className="px-4 py-3 whitespace-nowrap">{app.lastUpdate}</td>
+                <td className="px-4 py-3 whitespace-nowrap">{new Date(app.lastUpdate).toLocaleDateString()}</td>
                 <td className="px-4 py-3 whitespace-nowrap">{app.source}</td>
                 <td className="px-4 py-3 text-center">
-                  <span className={`px-3 py-1 rounded-full text-xs font-semibold ${statusColors[app.statusBadge] || 'bg-gray-200 text-gray-800'}`}>{app.statusBadge}</span>
+                  <span className={`px-3 py-1 rounded-full text-xs font-semibold ${statusColors[app.statusBadge] || 'bg-gray-200 text-gray-800'}`}>
+                    {app.statusBadge}
+                  </span>
                 </td>
                 <td className="px-4 py-3 text-center">
                   <button 
                     className="px-4 py-1 rounded bg-blue-600 text-white font-semibold hover:bg-blue-700 transition"
-                    onClick={() => setSelectedApplication(app)}
+                    onClick={() => router.push(`/applications/${app.id}`)}
                   >
                     View Details
                   </button>
@@ -280,14 +268,6 @@ export default function ApplicationsPage() {
           </tbody>
         </table>
       </div>
-
-      {/* Application Details Modal */}
-      {selectedApplication && (
-        <ApplicationDetailsModal
-          application={selectedApplication}
-          onClose={() => setSelectedApplication(null)}
-        />
-      )}
     </div>
   );
 } 
