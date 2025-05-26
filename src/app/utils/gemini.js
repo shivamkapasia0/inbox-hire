@@ -20,13 +20,22 @@ export async function categorizeEmailWithGemini(email, settings) {
 
     // Prepare the prompt
     const prompt = `Analyze this email and provide the following information in JSON format:
-    1. Category (must be one of: "rejected", "interview", "offer", "other")
-    2. Company name (if mentioned)
-    3. Position/Job title (if mentioned)
-    4. Date (if mentioned, in YYYY-MM-DD format)
-    5. Location (if mentioned)
-    6. Salary/Compensation (if mentioned)
-    7. Next steps or action items (if mentioned)
+    {
+      "id": "auto-generated-timestamp",
+      "from": "sender email",
+      "to": "recipient email",
+      "subject": "email subject",
+      "text": "plain text content",
+      "html": "HTML content if available",
+      "date": "email date in RFC2822 format",
+      "status": "one of: applied, interview, offer, rejected, other",
+      "jobTitle": "position/job title if mentioned",
+      "type": "one of: fullTime, partTime, contract, internship",
+      "company": "company name if mentioned",
+      "location": "job location if mentioned",
+      "salary": "compensation details if mentioned",
+      "nextSteps": "action items or next steps if mentioned"
+    }
 
     Email Subject: ${email.subject}
     Email Body: ${email.text}
